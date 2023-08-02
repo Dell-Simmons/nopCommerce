@@ -203,3 +203,4 @@ src/Presentation/Nop.Web/wwwroot/sitemaps/*
 src/packages/*
 src/Tests/Nop.Tests/Connections.resx
 /src/.cr/personal/FavoritesList
+/src/Plugins/Nop.Plugin.Payments.Braintree

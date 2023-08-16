@@ -204,3 +204,5 @@ src/packages/*
 src/Tests/Nop.Tests/Connections.resx
 /src/.cr/personal/FavoritesList
 /src/Plugins/Nop.Plugin.Payments.Braintree
+/src/Plugins/.git_NOPE
+/src/Presentation/Nop.Web/App_Data/FoxNetSoft.StripeDirect_log.txt

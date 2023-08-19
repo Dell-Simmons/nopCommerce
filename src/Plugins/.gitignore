@@ -1,0 +1,10 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/.vs/Supercharger/_/DTabsHistory.dat
+/Nop.Plugin.Payments.Braintree
+/Nop.Plugin.Payments.CheckMoneyOrder
+/Nop.Plugin.Shipping.FixedByWeightByTotal
+/Nop.Plugin.Tax.FixedOrByCountryStateZip
+/Nop.Plugin.Widgets.GoogleAnalytics

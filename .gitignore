@@ -207,3 +207,14 @@ src/Tests/Nop.Tests/Connections.resx
 /src/Plugins/.git_NOPE
 /src/Presentation/Nop.Web/App_Data/FoxNetSoft.StripeDirect_log.txt
 /src/Presentation/Nop.Web/wwwroot/images
+/src/Plugins/Nop.Plugin.DiscountRules.CustomerRoles
+/src/Plugins/Nop.Plugin.ExchangeRate.EcbExchange
+/src/Plugins/Nop.Plugin.ExternalAuth.Facebook
+/src/Plugins/Nop.Plugin.Misc.Sendinblue
+/src/Plugins/Nop.Plugin.Misc.Zettle
+/src/Plugins/Nop.Plugin.MultiFactorAuth.GoogleAuthenticator
+/src/Plugins/Nop.Plugin.Pickup.PickupInStore
+/src/Plugins/Nop.Plugin.Tax.Avalara
+/src/Plugins/Nop.Plugin.Widgets.FacebookPixel
+/src/Plugins/Nop.Plugin.Widgets.NivoSlider
+/src/Plugins/Nop.Plugin.Widgets.What3words

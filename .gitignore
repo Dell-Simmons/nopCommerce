@@ -205,3 +205,8 @@ src/Presentation/Nop.Web/wwwroot/sitemaps/*
 !src/Presentation/Nop.Web/wwwroot/sitemaps/Index.htm
 src/packages/*
 src/Tests/Nop.Tests/Connections.resx
+/src/Presentation/Nop.Web/wwwroot/images
+/src/Presentation/Nop.Web/App_Data/FoxNetSoft.Plugin.Misc.SimpleCheckout_log.txt
+/src/Presentation/Nop.Web/App_Data/FoxNetSoft.StripeDirect_log.txt
+/src/.cr/personal/Navigation/Code Places.xml
+/src/.cr/personal/FavoritesList/List.xml

@@ -1,0 +1,48 @@
+﻿@model string
+@Html.Raw(Model)
+<script>
+    $(document).ready(function () {
+        $("img").unbind("error").on("error", function(d) {
+            onImageError(this);
+        });
+        $("img").each(function(i,v) {
+                        if(v.naturalHeight === 0) {
+                            v.src = v.src;
+                        }
+                    });
+        function onImageError (imgObj) {
+            var oldSrc = imgObj.src;
+            console.log(oldSrc);
+            if(oldSrc.indexOf("thumbs") > 0) {
+                var imageName = oldSrc.substring(oldSrc.lastIndexOf("/") + 1, oldSrc.lastIndexOf('.'));
+
+                var imageId = imageName.substr(0, imageName.indexOf("_"));
+                var imageWidth = imageName.substr(imageName.lastIndexOf("_") + 1);
+
+                var postData = {
+                    pictureId: imageId,
+                    pictureSize: imageWidth
+                };
+                addAntiForgeryToken(postData);
+                $.ajax({
+                    cache: false,
+                    type: "POST",
+                    url: "@(Url.Action("GenerateThumbnail", "PictureProcessorPublic"))",
+                    data: postData,                                       
+                    success: function (data, textStatus, jqXHR) {
+                        if (data)
+                        {
+                            imgObj.src = data.pictureURL;
+                            //set default path and unbind error event
+                            $(this).unbind("error");
+                        }
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        //set default path and unbind error event
+                        $(this).unbind("error");
+                    }
+                });
+            }
+        }
+    });
+</script>

@@ -1,0 +1,86 @@
+﻿@model Techgrains.Plugin.Misc.PictureProcessor.Models.ConfigurationModel
+
+@{
+    Layout = "_ConfigurePlugin";
+}
+
+@await Component.InvokeAsync("StoreScopeConfiguration")
+<form asp-controller="PictureProcessor" asp-action="Configure" method="post">
+    <section class="content">
+        <div class="container-fluid">
+            <div class="cards-group">
+                <div class="card card-default">
+                    <div class="card-header">
+                        @T("Techgrains.Plugin.Misc.PictureProcessor.Title")
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group row">
+                            <div class="col-md-3">
+                                <nop-override-store-checkbox asp-for="Enable_OverrideForStore" asp-input="Enable" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
+                                <nop-label asp-for="Enable" />
+                            </div>
+                            <div class="col-md-9">
+                                <nop-editor asp-for="Enable" />
+                                <span asp-validation-for="Enable"></span>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-md-3">
+                                <nop-override-store-checkbox asp-for="PictureProcessesThreadSleep_OverrideForStore" asp-input="PictureProcessesThreadSleep" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
+                                <nop-label asp-for="PictureProcessesThreadSleep" />
+                            </div>
+                            <div class="col-md-9">
+                                <nop-editor asp-for="PictureProcessesThreadSleep" />
+                                <span asp-validation-for="PictureProcessesThreadSleep"></span>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-md-3">
+                                <nop-override-store-checkbox asp-for="PictureProcessesTakePicture_OverrideForStore" asp-input="PictureProcessesTakePicture" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
+                                <nop-label asp-for="PictureProcessesTakePicture" />
+                            </div>
+                            <div class="col-md-9">
+                                <nop-editor asp-for="PictureProcessesTakePicture" />
+                                <span asp-validation-for="PictureProcessesTakePicture"></span>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-md-9 offset-md-3 mt-4">
+                                <button type="submit" name="save" class="btn btn-primary">@T("Admin.Common.Save")</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card card-default">
+                    <div class="card-header">
+                        Force Picture Processing
+                    </div>
+                    <div class="card-body">
+                        <p>
+                            Use this feature to process all images forcefully. You will need to perform this action if this plugin is enabled, in active mode and some of your images are not showing thumbnails.
+                        </p>
+                        <div class="form-group row">
+                            <div class="col-md-12">
+                                <button type="submit" name="processAllImgOrg" hidden>processAllImgOrg</button>
+                                <button id="processAllImg" type="button" name="processAllImg" class="btn btn-primary">@T("Techgrains.Plugin.Misc.PictureProcessor.Button.ProcessAllImages")</button>
+                                <nop-action-confirmation asp-button-id="processAllImg" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</form>
+
+<script>
+    $(document).ready(function () {
+        $('#processAllImg-action-confirmation-submit-button').bind('click', function () {
+            $('button[name="processAllImgOrg"]').click();
+            $('#processAllImg-action-confirmation').modal('toggle');
+            return false;
+        });
+    });
+
+</script>

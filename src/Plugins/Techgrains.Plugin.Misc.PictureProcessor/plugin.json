@@ -1,0 +1,11 @@
+﻿{
+  "Group": "Misc",
+  "FriendlyName": "Picture Processor",
+  "SystemName": "Techgrains.Plugin.Misc.PictureProcessor",
+  "Version": "1.0",
+  "SupportedVersions": [ "4.80" ],
+  "Author": "Techgrains team",
+  "DisplayOrder": 1,
+  "FileName": "Techgrains.Plugin.Misc.PictureProcessor.dll",
+  "Description": "Picture Processor plugin is useful to generate thumbnails of your NopCommerce site in advance. It is very handy and benificial for the marketplace sites which have a lot to do with images."
+}

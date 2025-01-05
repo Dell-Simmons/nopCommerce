@@ -123,9 +123,9 @@
                     {
                         addToCartText = T("ShoppingCart.PreOrder").Text;
                     }
-                    <button type="button" class="button-2 product-box-add-to-cart-button" onclick="AjaxCart.addproducttocart_catalog('@addtocartlink');return false;">@(addToCartText)</button>
+                    <button type="button" class=" product-box-add-to-cart-button" onclick="AjaxCart.addproducttocart_catalog('@addtocartlink');return false;">@(addToCartText)</button>
                      //Add a 'details' button to call ProductDetails action in the ProductController
-                    <button type="button" class="button-1 product-box-detail-button" onclick="location.href='@(Url.RouteUrl<Product>(new { SeName = Model.SeName }))';return false;">@T("Products.Details")</button>
+                    <button type="button" class=" product-box-detail-button" onclick="location.href='@(Url.RouteUrl<Product>(new { SeName = Model.SeName }))';return false;">@T("Products.Details")</button>
                 }
                 // removed commpare products button and add to wishlist 
             </div>

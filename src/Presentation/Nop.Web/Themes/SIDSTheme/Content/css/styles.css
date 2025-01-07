@@ -1667,7 +1667,7 @@ label, label + * {
 .item-box .picture {
   z-index: 1;
   background-color: #000;
-  margin: 0 0 20px;
+  margin: 0 0 10px;
 }
 
 .item-box .picture a {
@@ -1712,21 +1712,22 @@ label, label + * {
   font-size: 17px;
   line-height: 1.2;
   font-weight: normal;
-  color: #4ab2f1;
+  color: black;
 }
 
 .item-box .product-title a {
   display: block;
 }
 
-.item-box .product-title a:hover,
-.item-box .product-title a:focus {
-  color: #248ece;
-}
+  .item-box .product-title a:hover,
+  .item-box .product-title a:focus {
+    color: #4cb17c;
+  }
 
-/*.item-box .sku {
-  margin: 0 0 15px;
-}*/
+.item-box .sku {
+  margin-right: 15px;
+  float:right
+}
 
 .item-box .product-rating-box {
   display: inline-block;
@@ -1766,9 +1767,10 @@ label, label + * {
 }
 
 .item-box .actual-price {
-  margin: 0 5px 0 0;
-  font-size: 16px;
-  color: #666;
+  margin: 0 5px 0 20px;
+  font-size: 20px;
+  color: black;
+  font-weight:bold;
 }
 
 .item-box .tax-shipping-info a {

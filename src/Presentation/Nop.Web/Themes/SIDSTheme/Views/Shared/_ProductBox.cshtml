@@ -75,13 +75,8 @@
                     <span class="price old-price">@Model.ProductPrice.OldPrice</span>
                 }
                 <span class="price actual-price">@Model.ProductPrice.Price</span>
-              
-            </div> @if (catalogSettings.ShowSkuOnCatalogPages && !string.IsNullOrEmpty(Model.Sku))
-            {
-                <div class="sku">
-                    SKU @Model.Sku
-                </div>
-            }
+                <span class=" sku">SKU @Model.Sku</span>
+            </div> 
             @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.ProductBoxAddinfoMiddle, additionalData = Model })
             <div class="buttons">
                 @if (!Model.ProductPrice.DisableBuyButton)

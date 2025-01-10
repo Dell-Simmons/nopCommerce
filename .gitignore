@@ -205,3 +205,8 @@ src/Presentation/Nop.Web/wwwroot/sitemaps/*
 !src/Presentation/Nop.Web/wwwroot/sitemaps/Index.htm
 src/packages/*
 src/Tests/Nop.Tests/Connections.resx
+/src/.cr/personal/Editor/Region Painting/Region Painting.xml
+/src/.cr/personal/Navigation/Code Places.xml
+/.gitignore
+/.gitignore
+/.gitignore

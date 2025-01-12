@@ -30,16 +30,21 @@
     <Content Include="App_Data\**" CopyToPublishDirectory="PreserveNewest" Exclude="App_Data\*.json" />
     <Content Remove="App_Data\*.json" />
     <Content Remove="Themes\SIDSTheme\**" />
+    <Content Remove="wwwroot\images\**" />
     <Content Update="App_Data\DataProtectionKeys\*.xml" CopyToPublishDirectory="Never" />
 
     <Compile Remove="Plugins\**;Themes\**" />
 
     <Compile Remove="Themes\SIDSTheme\**" />
+
+    <Compile Remove="wwwroot\images\**" />
     <Content Remove="Plugins\**;Themes\**" />
     <EmbeddedResource Remove="Plugins\**;Themes\**" />
     <EmbeddedResource Remove="Themes\SIDSTheme\**" />
+    <EmbeddedResource Remove="wwwroot\images\**" />
     <None Remove="Plugins\**;Themes\**" />
     <None Remove="Themes\SIDSTheme\**" />
+    <None Remove="wwwroot\images\**" />
     <None Include="Plugins\**" CopyToPublishDirectory="PreserveNewest" Exclude="Plugins\**\runtimes\**;Plugins\**\ref\**;Plugins\**\*.pdb" />
 
     <Content Include="Themes\**" CopyToPublishDirectory="PreserveNewest" CopyToOutputDirectory="Never" />
@@ -47,6 +52,8 @@
     <!-- We copy the \Logs directory -->
     <Content Include="Logs\**" CopyToPublishDirectory="PreserveNewest" />
     <None Remove="Plugins\Uploaded\placeholder.txt" />
+    <Content Include="App_Data\appsettings.json" />
+    <Content Include="App_Data\plugins.json" />
     <Content Include="Plugins\Uploaded\placeholder.txt">
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>

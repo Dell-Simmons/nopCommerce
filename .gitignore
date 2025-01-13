@@ -210,3 +210,6 @@ src/Tests/Nop.Tests/Connections.resx
 /.gitignore
 /.gitignore
 /.gitignore
+*.jpeg
+*.png
+*.jpg

@@ -184,7 +184,9 @@ label, label + * {
   min-height: 200px;
   text-align: center;
 }
-
+.category-page{
+    background-color:#f8e2bc;
+}
 .page-title {
   min-height: 50px;
   margin: 0 0 25px;
@@ -1666,7 +1668,7 @@ label, label + * {
 
 .item-box .picture {
   z-index: 1;
-  background-color: #000;
+  background-color: transparent;
   margin: 0 0 10px;
 }
 

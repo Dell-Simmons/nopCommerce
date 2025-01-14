@@ -2430,8 +2430,9 @@ product-box-add-to-cart-button
 
 .overview .add-to-cart-button,
 .variant-overview .add-to-cart-button {
-  height: 43px;
+  height: 42px;
   border: none;
+  border-radius:21px;
   background-color: #4ab2f1;
   padding: 0 24px;
   font-size: 15px;

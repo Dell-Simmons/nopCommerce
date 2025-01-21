@@ -1689,7 +1689,7 @@ label, label + * {
 
 .item-box .picture a img {
   position: absolute;
-  top: 0;
+  /*top: 0;*/
   right: 0;
   bottom: 0;
   left: 0;
@@ -1718,7 +1718,8 @@ label, label + * {
 }
 
 .item-box .product-title a {
-  display: block;
+  display: flex;
+  justify-content:center;
 }
 
   .item-box .product-title a:hover,

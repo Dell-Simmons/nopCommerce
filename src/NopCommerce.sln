@@ -41,6 +41,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SIDS.Plugin.Misc.Utilities"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SIDS.Plugin.Misc.FeeBay", "Plugins\SIDS.Plugin.Misc.FeeBay\SIDS.Plugin.Misc.FeeBay.csproj", "{FBD2332C-30F5-405B-A516-1FB58160F106}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SIDS.Plugin.Misc.NewProductsSlider", "Plugins\SIDS.Plugin.Misc.NewProductsSlider\SIDS.Plugin.Misc.NewProductsSlider.csproj", "{CAB02933-2024-459F-A442-49BE6C547FFE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -215,6 +217,18 @@ Global
 		{FBD2332C-30F5-405B-A516-1FB58160F106}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{FBD2332C-30F5-405B-A516-1FB58160F106}.Release|x86.ActiveCfg = Release|Any CPU
 		{FBD2332C-30F5-405B-A516-1FB58160F106}.Release|x86.Build.0 = Release|Any CPU
+		{CAB02933-2024-459F-A442-49BE6C547FFE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CAB02933-2024-459F-A442-49BE6C547FFE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CAB02933-2024-459F-A442-49BE6C547FFE}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{CAB02933-2024-459F-A442-49BE6C547FFE}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{CAB02933-2024-459F-A442-49BE6C547FFE}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{CAB02933-2024-459F-A442-49BE6C547FFE}.Debug|x86.Build.0 = Debug|Any CPU
+		{CAB02933-2024-459F-A442-49BE6C547FFE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CAB02933-2024-459F-A442-49BE6C547FFE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CAB02933-2024-459F-A442-49BE6C547FFE}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{CAB02933-2024-459F-A442-49BE6C547FFE}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{CAB02933-2024-459F-A442-49BE6C547FFE}.Release|x86.ActiveCfg = Release|Any CPU
+		{CAB02933-2024-459F-A442-49BE6C547FFE}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

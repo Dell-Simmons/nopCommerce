@@ -1720,6 +1720,8 @@ label, label + * {
 .item-box .product-title a {
   display: flex;
   justify-content:center;
+  text-align:center;
+  white-space:pre-wrap;
 }
 
   .item-box .product-title a:hover,

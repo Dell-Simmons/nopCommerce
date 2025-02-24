@@ -79,7 +79,7 @@
                             </h1>
                         </div>
                      
-                      @*   @if (!string.IsNullOrEmpty(Model.ShortDescription))
+                       @*  @if (!string.IsNullOrEmpty(Model.ShortDescription))
                         {
                             <div class="short-description">
                                 @Html.Raw(Model.ShortDescription)
@@ -95,7 +95,7 @@
                         <!--sample download-->
                         @await Html.PartialAsync("_DownloadSample", Model)
                         <!--product specifications-->
-                     @*    @await Html.PartialAsync("_ProductSpecifications", Model.ProductSpecificationModel) *@
+                        @await Html.PartialAsync("_ProductSpecifications", Model.ProductSpecificationModel)
                         @if (!string.IsNullOrEmpty(Model.FullDescription))
                         {
                             <div class="full-description">

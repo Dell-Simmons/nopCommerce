@@ -184,7 +184,9 @@ label, label + * {
   min-height: 200px;
   text-align: center;
 }
-
+.category-page{
+    background-color:#f8e2bc;
+}
 .page-title {
   min-height: 50px;
   margin: 0 0 25px;
@@ -1666,7 +1668,7 @@ label, label + * {
 
 .item-box .picture {
   z-index: 1;
-  background-color: #000;
+  background-color: transparent;
   margin: 0 0 10px;
 }
 
@@ -1687,7 +1689,7 @@ label, label + * {
 
 .item-box .picture a img {
   position: absolute;
-  top: 0;
+  /*top: 0;*/
   right: 0;
   bottom: 0;
   left: 0;
@@ -1716,7 +1718,10 @@ label, label + * {
 }
 
 .item-box .product-title a {
-  display: block;
+  display: flex;
+  justify-content:center;
+  text-align:center;
+  white-space:pre-wrap;
 }
 
   .item-box .product-title a:hover,
@@ -2428,8 +2433,9 @@ product-box-add-to-cart-button
 
 .overview .add-to-cart-button,
 .variant-overview .add-to-cart-button {
-  height: 43px;
+  height: 42px;
   border: none;
+  border-radius:21px;
   background-color: #4ab2f1;
   padding: 0 24px;
   font-size: 15px;
@@ -2520,7 +2526,7 @@ product-box-add-to-cart-button
 }
 
 .product-specs-box {
-  margin: 20px 0 20px;
+  margin: 40px 0 10px;
 }
 
 .product-specs-box td {

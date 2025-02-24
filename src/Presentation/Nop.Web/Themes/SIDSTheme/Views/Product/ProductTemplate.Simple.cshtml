@@ -79,7 +79,7 @@
                             </h1>
                         </div>
                      
-                      @*   @if (!string.IsNullOrEmpty(Model.ShortDescription))
+                       @*  @if (!string.IsNullOrEmpty(Model.ShortDescription))
                         {
                             <div class="short-description">
                                 @Html.Raw(Model.ShortDescription)
@@ -157,7 +157,8 @@
                         </div>
                     } *@
                     @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.ProductDetailsEssentialBottom, additionalData = Model })
-                </div>
+                        <div>Click on the scan for a closer view. This is not a stock image. The stamp you see is the stamp you will receive.</div>
+                    </div>
                 @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.ProductDetailsBeforeCollateral, additionalData = Model })
                 <div class="product-collateral">
                     @await Html.PartialAsync("_ProductTags", Model.ProductTags)

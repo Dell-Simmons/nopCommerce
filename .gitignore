@@ -213,3 +213,5 @@ src/Tests/Nop.Tests/Connections.resx
 *.jpeg
 *.png
 *.jpg
+/src/Plugins/FoxNetSoft.StripeDirect
+/src/Presentation/Nop.Web/wwwroot/images

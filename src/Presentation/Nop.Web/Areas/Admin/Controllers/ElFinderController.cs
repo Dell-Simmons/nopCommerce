@@ -3,7 +3,6 @@ using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Mvc;
 using Nop.Services.Media.ElFinder;
 using Nop.Services.Security;
-using Nop.Web.Framework.Mvc.Filters;
 
 namespace Nop.Web.Areas.Admin.Controllers;
 
@@ -38,7 +37,6 @@ public partial class ElFinderController : BaseAdminController
     [HttpPost]
     [HttpGet]
     [IgnoreAntiforgeryToken]
-    [CheckPermission(StandardPermission.System.HTML_EDITOR_MANAGE_PICTURES)]
     public virtual async Task<IActionResult> Connector()
     {
         try
@@ -47,7 +45,7 @@ public partial class ElFinderController : BaseAdminController
             //var connector = await _elFinderService.GetConnectorAsync(Request);
             //return await connector.ProcessAsync(Request);
 
-            var connector = await _elFinderService.GetConnectorAsync(Request);
+            var connector = _elFinderService.GetConnector();
             var response = await connector.ProcessAsync(Request);
 
             // If the library has already returned a serialized ContentResult, just return it
@@ -97,7 +95,7 @@ public partial class ElFinderController : BaseAdminController
     {
         try
         {
-            var connector = await _elFinderService.GetConnectorAsync(Request);
+            var connector = _elFinderService.GetConnector();
 
             var path = Request.Path.Value;
             var lastSegment = path[(path.LastIndexOf('/') + 1)..];

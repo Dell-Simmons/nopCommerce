@@ -1,7 +1,11 @@
 ﻿using elFinder.NetCore;
 using elFinder.NetCore.Drivers.FileSystem;
-using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
+using Microsoft.AspNetCore.Mvc.Routing;
 using Nop.Core;
+using Nop.Core.Domain.Media;
+using Nop.Core.Infrastructure;
 
 namespace Nop.Services.Media.ElFinder;
 
@@ -12,19 +16,28 @@ public partial class ElFinderService : IElFinderService
 {
     #region Fields
 
-    protected readonly IElFinderFileProvider _fileProvider;
+    protected readonly IActionContextAccessor _actionContextAccessor;
+    protected readonly INopFileProvider _nopFileProvider;
+    protected readonly IUrlHelperFactory _urlHelperFactory;
     protected readonly IWebHelper _webHelper;
+    protected readonly MediaSettings _mediaSettings;
 
     #endregion
 
     #region Ctor
 
     public ElFinderService(
-        IElFinderFileProvider fileProvider,
-        IWebHelper webHelper)
+        IActionContextAccessor actionContextAccessor,
+        INopFileProvider nopFileProvider,
+        IUrlHelperFactory urlHelperFactory,
+        IWebHelper webHelper,
+        MediaSettings mediaSettings)
     {
-        _fileProvider = fileProvider;
+        _actionContextAccessor = actionContextAccessor;
+        _nopFileProvider = nopFileProvider;
+        _urlHelperFactory = urlHelperFactory;
         _webHelper = webHelper;
+        _mediaSettings = mediaSettings;
     }
 
     #endregion
@@ -34,16 +47,18 @@ public partial class ElFinderService : IElFinderService
     /// <summary>
     /// Configure elFinder connector
     /// </summary>
-    /// <param name="request">Http request</param>
     /// <returns>Connector</returns>
-    public virtual async Task<Connector> GetConnectorAsync(HttpRequest request)
+    public virtual Connector GetConnector()
     {
-        // Initialize file provider with current path
-        await _fileProvider.InitializeAsync();
+        var pathBase = _webHelper.GetStoreLocation();
+        var urlBase = $"{pathBase}{_mediaSettings.PicturePath}/{NopElFinderDefaults.DefaultRootDirectory}/";
+        var rootPath = _nopFileProvider.Combine(_nopFileProvider.GetLocalImagesPath(_mediaSettings), NopElFinderDefaults.DefaultRootDirectory);
 
-        var rootPath = _fileProvider.GetRootPath();
-        var urlBase = _fileProvider.GetUrlBase();
-        var thumbUrl = _fileProvider.GetUrlThumb();
+        // Create root directory if it doesn't exist
+        _nopFileProvider.CreateDirectory(rootPath);
+
+        var urlHelper = _urlHelperFactory.GetUrlHelper(_actionContextAccessor.ActionContext);
+        var thumbUrl = $"{urlHelper.Action("Thumb", "ElFinder", new { area = "Admin" })}/";
 
         var driver = new FileSystemDriver();        
 
@@ -58,14 +73,6 @@ public partial class ElFinderService : IElFinderService
             IsLocked = false,
             Alias = NopElFinderDefaults.DefaultRootDirectory,
             MaxUploadSizeInMb = NopElFinderDefaults.MaxUploadFileSize,
-            //AccessControlAttributes = new HashSet<NamedAccessControlAttributeSet>()
-            //{
-            //    new NamedAccessControlAttributeSet(PathHelper.MapPath("~/images/uploaded/placeholder.txt", rootPath))
-            //    {
-            //        Write = false,
-            //        Locked = true
-            //    },
-            //},
             // Upload file type constraints
             UploadAllow = new[] { "image" },
             UploadDeny = new[] { "text/csv" },
@@ -79,7 +86,6 @@ public partial class ElFinderService : IElFinderService
             // This allows support for the "onlyMimes" option on the client.
             MimeDetect = MimeDetectOption.Internal
         };
-        
     }
 
     #endregion

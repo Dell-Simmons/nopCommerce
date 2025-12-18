@@ -9,6 +9,8 @@
 
     var random = CommonHelper.GenerateRandomInteger();
 
+    var allowElFinder = await permissionService.AuthorizeAsync(StandardPermission.System.HTML_EDITOR_MANAGE_PICTURES);
+
     //extend editor with additional settings
     var additionalEditorSettings = adminAreaSettings.RichEditorAdditionalSettings;
 
@@ -77,6 +79,7 @@
             // create button
             return ui.button({
                 contents: '<i class="fa fa-image"/>',
+                tooltip: 'Insert image',
                 click: function () {
                     openElFinderDialog(context);
                 }
@@ -102,7 +105,12 @@
                 ['view', ['fullscreen', 'codeview', 'help']]
             ],
             buttons: {
-                elfinder: ElFinderImageButton
+                @if (allowElFinder)
+                {
+                    <text>
+                        elfinder: ElFinderImageButton,
+                    </text>
+                }
             },
             spellCheck: true,
             maxHeight: 800,

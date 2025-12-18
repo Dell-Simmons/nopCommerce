@@ -293,8 +293,7 @@ public partial class NopStartup : INopStartup
         services.AddScoped<IPictureService, PictureService>();
 
         //elFinder file manager
-        services.AddScoped<IElFinderService, ElFinderService>();
-        services.AddScoped<IElFinderFileProvider, ElFinderFileProvider>();
+        services.AddSingleton<IElFinderService, ElFinderService>();
 
         //installation service
         services.AddScoped<IInstallationService, InstallationService>();

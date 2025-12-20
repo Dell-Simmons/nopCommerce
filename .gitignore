@@ -109,7 +109,7 @@ publish/
 
 # NuGet Packages Directory
 ## TODO: If you have NuGet Package Restore enabled, uncomment the next line
-#packages/
+packages/
 
 # Windows Azure Build Output
 csx
@@ -176,7 +176,6 @@ src/Presentation/Nop.Web/App_Data/additional.crawlers.xml
 src/Presentation/Nop.Web/App_Data/installedPlugins.json
 src/Presentation/Nop.Web/App_Data/plugins.json
 src/Presentation/Nop.Web/App_Data/dataSettings.json
-src/Presentation/Nop.Web/App_Data/appsettings.json
 src/Presentation/Nop.Web/App_Data/TempUploads/*
 !src/Presentation/Nop.Web/App_Data/TempUploads/Index.htm
 src/Presentation/Nop.Web/App_Data/DataProtectionKeys/*
@@ -194,6 +193,7 @@ src/Presentation/Nop.Web/wwwroot/db_backups/*.bak
 !src/Presentation/Nop.Web/wwwroot/db_backups/Index.htm
 src/Presentation/Nop.Web/wwwroot/images/thumbs/*
 !src/Presentation/Nop.Web/wwwroot/images/thumbs/placeholder.txt
+src/Presentation/Nop.Web/wwwroot/images/*.jpg
 src/Presentation/Nop.Web/wwwroot/images/uploaded/*
 !src/Presentation/Nop.Web/wwwroot/images/uploaded/placeholder.txt
 src/Presentation/Nop.Web/wwwroot/files/exportimport/*

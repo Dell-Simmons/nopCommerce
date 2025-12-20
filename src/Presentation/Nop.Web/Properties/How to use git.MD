@@ -1,10 +1,13 @@
 On GitHub the repository is located at: is nopcommerce.  It is forked (not cloned) from nopcommerce. The Develop branch
-of that is cloned down here to the local 
-copy called develop.  SIDS is a branch off of develop.  
+of that was cloned down here to the local 
+copy called develop.  SIDS is a branch off of develop. 
+Then the local develop branch was deleted.  Can easilly check it
+out again if needed to update (see below).
 The SIDS branch is where all changes are made.  
 
 When changes are made to SIDS, 
 they are pushed back up to the SIDS branch on GitHub.
+NEVER MERGE SIDS BACK INTO DEVELOP
 
 When changes are made to the develop branch BY NOPCOMMERCE, 
 they can be merged into SIDS.  On github be sure that the local nopcommerce

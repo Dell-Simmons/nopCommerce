@@ -206,4 +206,4 @@ src/Presentation/Nop.Web/wwwroot/sitemaps/*
 src/packages/*
 src/Tests/Nop.Tests/Connections.resx
 /src/.cr/personal/Navigation/Code Places.xml
-/.gitignore
+/src/Presentation/Nop.Web/App_Data/appsettings.json

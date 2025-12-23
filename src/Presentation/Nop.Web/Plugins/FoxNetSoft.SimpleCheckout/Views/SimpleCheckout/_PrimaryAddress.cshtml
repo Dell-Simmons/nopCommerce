@@ -1,0 +1,209 @@
+﻿@model FoxNetSoft.Plugin.Misc.SimpleCheckout.Models.SimpleCheckoutModel
+@using FoxNetSoft.Plugin.Misc.SimpleCheckout.Extensions
+@using FoxNetSoft.Plugin.Misc.SimpleCheckout.Helpers
+
+<input asp-for="PrimaryAddress.Id" type="hidden" />
+<div class="inputs">
+    <h3 class="primary-address-title">
+        @if (Model.PluginSettings.UseBillingAddressAsPrimary)
+        {
+            @T("FoxNetSoft.Plugin.Misc.SimpleCheckout.MainWindow.Title.BillingAddress")
+        }
+        else
+        {
+            @T("FoxNetSoft.Plugin.Misc.SimpleCheckout.MainWindow.Title.ShippingAddress")
+        }
+    </h3>
+</div>
+@if (Model.PluginSettings.AllowToSelectTheAddress && Model.ExistingPrimaryAddresses.Count() > 1)
+{
+<div class="inputs">
+    <nop-label asp-for="ExistingPrimaryAddresses" class="labelforinputs" />
+    <select name="existingprimaryaddresses" id="existingprimaryaddresses" onchange="changePrimaryAddress(this.value)" autocomplete="off">
+        @foreach (var address in Model.ExistingPrimaryAddresses)
+        {
+            if (Model.PrimaryAddress.Id == address.Id)
+            {
+                <option value="@(address.Id)" selected="selected">@(address.ConvertToString())</option>
+            }
+            else
+            {
+                <option value="@(address.Id)">@(address.ConvertToString())</option>
+            }
+        }
+    </select>
+</div>
+}
+<div class="inputs">
+    <nop-label asp-for="PrimaryAddress.FirstName" class="labelforinputs" />
+    <input asp-for="PrimaryAddress.FirstName" autocomplete="off" />
+    <nop-required />
+    <span asp-validation-for="PrimaryAddress.FirstName"></span>
+</div>
+<div class="inputs">
+    <nop-label asp-for="PrimaryAddress.LastName" class="labelforinputs" />
+    <input asp-for="PrimaryAddress.LastName" autocomplete="off" />
+    <nop-required />
+    <span asp-validation-for="PrimaryAddress.LastName"></span>
+</div>
+<div class="inputs">
+    <nop-label asp-for="PrimaryAddress.Email" class="labelforinputs" />
+    <input asp-for="PrimaryAddress.Email" autocomplete="off" />
+    <nop-required />
+    <span asp-validation-for="PrimaryAddress.Email"></span>
+</div>
+@if (Model.PrimaryAddress.CompanyEnabled)
+{
+    <div class="inputs">
+        <nop-label asp-for="PrimaryAddress.Company" class="labelforinputs" />
+        <input asp-for="PrimaryAddress.Company" autocomplete="off" />
+        @if (Model.PrimaryAddress.CompanyRequired)
+        {
+            <nop-required />
+        }
+        <span asp-validation-for="PrimaryAddress.Company"></span>
+    </div>
+}
+@if (Model.DisplayVatNumber)
+{
+    <div class="inputs">
+        <nop-label asp-for="VatNumber" class="labelforinputs" />
+        <input asp-for="VatNumber" autocomplete="off" />
+        <span asp-validation-for="VatNumber"></span>
+    </div>
+}
+@if (Model.PrimaryAddress.StreetAddressEnabled)
+{
+    <div id="record-address-streetaddress" class="inputs">
+        <nop-label asp-for="PrimaryAddress.Address1" class="labelforinputs" />
+        <input asp-for="PrimaryAddress.Address1" autocomplete="off" />
+        @if (Model.PrimaryAddress.StreetAddressRequired)
+        {
+            <nop-required />
+        }
+        <span asp-validation-for="PrimaryAddress.Address1"></span>
+    </div>
+}
+@if (Model.PrimaryAddress.StreetAddress2Enabled)
+{
+    <div id="record-address-streetaddress2" class="inputs">
+        <nop-label asp-for="PrimaryAddress.Address2" class="labelforinputs" />
+        <input asp-for="PrimaryAddress.Address2" autocomplete="off" />
+        @if (Model.PrimaryAddress.StreetAddress2Required)
+        {
+            <nop-required />
+        }
+        <span asp-validation-for="PrimaryAddress.Address2"></span>
+    </div>
+}
+@if (Model.PrimaryAddress.CityEnabled)
+{
+    <div id="record-address-city" class="inputs">
+        <nop-label asp-for="PrimaryAddress.City" class="labelforinputs" />
+        <input asp-for="PrimaryAddress.City" autocomplete="off" />
+        @if (Model.PrimaryAddress.CityRequired)
+        {
+            <nop-required />
+        }
+        <span asp-validation-for="PrimaryAddress.City"></span>
+    </div>
+}
+@if (Model.PrimaryAddress.CountyEnabled)
+{
+    <div id="record-address-county" class="inputs">
+        <nop-label asp-for="PrimaryAddress.County" class="labelforinputs" />
+        <input asp-for="PrimaryAddress.County" autocomplete="off" />
+        @if (Model.PrimaryAddress.CountyRequired)
+        {
+            <nop-required />
+        }
+        <span asp-validation-for="PrimaryAddress.County"></span>
+    </div>
+}
+@if (Model.PrimaryAddress.CountryEnabled && Model.PrimaryAddress.StateProvinceEnabled)
+{
+    <div id="record-address-stateprovince" class="inputs">
+        <nop-label asp-for="PrimaryAddress.StateProvinceId" class="labelforinputs" />
+        <select asp-for="PrimaryAddress.StateProvinceId" asp-items="Model.PrimaryAddress.AvailableStates" autocomplete="off"></select>
+        <nop-required />
+        <span id="primary-address-states-loading-progress" style="display: none;" class="please-wait">@T("Common.Wait")</span>
+        <span asp-validation-for="PrimaryAddress.AvailableStates"></span>
+    </div>
+}
+@if (Model.PrimaryAddress.ZipPostalCodeEnabled)
+{
+    <div id="record-address-zippostalcode" class="inputs">
+        <nop-label asp-for="PrimaryAddress.ZipPostalCode" class="labelforinputs" />
+        <input asp-for="PrimaryAddress.ZipPostalCode" autocomplete="off" />
+        @if (Model.PrimaryAddress.ZipPostalCodeRequired)
+        {
+            <nop-required />
+        }
+        <span asp-validation-for="PrimaryAddress.ZipPostalCode"></span>
+    </div>
+}
+@if (Model.PrimaryAddress.CountryEnabled)
+{
+    <div id="record-address-country" class="inputs">
+        <nop-label asp-for="PrimaryAddress.CountryId" class="labelforinputs" />
+        <select asp-for="PrimaryAddress.CountryId" asp-items="Model.PrimaryAddress.AvailableCountries" autocomplete="off"></select>
+        <nop-required />
+        <span asp-validation-for="PrimaryAddress.CountryId"></span>
+    </div>
+}
+@if (Model.PrimaryAddress.PhoneEnabled)
+{
+    <div class="inputs">
+        <nop-label asp-for="PrimaryAddress.PhoneNumber" class="labelforinputs" />
+        <input asp-for="PrimaryAddress.PhoneNumber" autocomplete="off" />
+        @if (Model.PrimaryAddress.PhoneRequired)
+        {
+            <nop-required />
+        }
+        <span asp-validation-for="PrimaryAddress.PhoneNumber"></span>
+    </div>
+}
+@if (Model.PrimaryAddress.FaxEnabled)
+{
+    <div class="inputs">
+        <nop-label asp-for="PrimaryAddress.FaxNumber" class="labelforinputs" />
+        <input asp-for="PrimaryAddress.FaxNumber" autocomplete="off" />
+        @if (Model.PrimaryAddress.FaxRequired)
+        {
+            <nop-required />
+        }
+        <span asp-validation-for="PrimaryAddress.FaxNumber"></span>
+    </div>
+}
+@if (Model.PrimaryAddress.CustomAddressAttributes.Any())
+{
+    @await Html.PartialAsync(await ResolveViewPathHelper.GetThemesPathAsync("SimpleCheckout/_PrimaryAddressAttributes"), Model.PrimaryAddress.CustomAddressAttributes)
+}
+@if (Model.PluginSettings.AllowSecondaryAddress)
+{
+    <div class="inputs secondary-address">
+        @{
+            var useSecondaryAddressText = "FoxNetSoft.Plugin.Misc.SimpleCheckout.UseSecondaryAddressForBilling";
+            if (@Model.PluginSettings.UseBillingAddressAsPrimary)
+            {
+                useSecondaryAddressText = "FoxNetSoft.Plugin.Misc.SimpleCheckout.UseSecondaryAddressForShipping";
+            }
+            else
+            {
+                useSecondaryAddressText = "FoxNetSoft.Plugin.Misc.SimpleCheckout.UseSecondaryAddressForBilling";
+            }
+        }
+        <div class="labelforinputs">
+            <label class="control-label" for="UseSecondaryAddress">
+                @T(useSecondaryAddressText)
+            </label>
+            <div title="@T(useSecondaryAddressText+".Hint")" class="ico-help">
+                <i class="fa fa-question-circle"></i>
+            </div>
+        </div>
+        <input asp-for="UseSecondaryAddress" autocomplete="off" />
+        <div class="record-usesecondary-address">
+            @await Html.PartialAsync(await ResolveViewPathHelper.GetThemesPathAsync("SimpleCheckout/_SecondaryAddress"), Model)
+        </div>
+    </div>
+} 

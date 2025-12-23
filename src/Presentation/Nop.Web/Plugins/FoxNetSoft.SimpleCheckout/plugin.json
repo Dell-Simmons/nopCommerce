@@ -1,0 +1,11 @@
+﻿{
+  "Group": "Misc",
+  "FriendlyName": "SimpleCheckout",
+  "SystemName": "FoxNetSoft.Plugin.Misc.SimpleCheckout",
+  "Version": "5.27",
+  "SupportedVersions": [ "4.90" ],
+  "Author": "FoxNetSoft",
+  "DisplayOrder": 1,
+  "FileName": "FoxNetSoft.Plugin.Misc.SimpleCheckout.dll",
+  "Description": "Another checkout page"
+}

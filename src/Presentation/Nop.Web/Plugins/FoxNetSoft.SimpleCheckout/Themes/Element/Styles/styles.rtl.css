@@ -1,0 +1,67 @@
+﻿.simple-checkout-data-left {
+    float: right;
+}
+.simple-checkout-data img {
+    margin-left: 4px;
+}
+.shipping-method .method-list, .payment-method .method-list {
+    text-align: right;
+}
+.simple-checkout-data .coupon-code .buttons {
+    margin-right: 5px;
+    text-align: right;
+}
+.simple-checkout-data-left .inputs {
+    text-align: right;
+}
+.simple-checkout-secondary-address-table img {
+    margin-bottom: -4px;
+    margin-left: 4px;
+    margin-right: 4px;
+}
+.simple-checkout-paymentinfo .payment-info .info {
+    text-align: right;
+}
+.simple-checkout-paymentinfo .payment-info .info td:first-child {
+    text-align: right;
+}
+.simple-checkout-data-left .inputs .labelforinputs label {
+    margin: 0;
+}
+@media all and (max-width: 1000px) {
+    .simple-checkout-data-left .inputs,
+    .simple-checkout-data-left .inputs .labelforinputs {
+        text-align: center;
+    }
+    .shipping-method .method-list, .payment-method .method-list {
+        text-align: right;
+    }
+}
+@media all and (max-width: 480px) {
+    .simple-checkout-paymentinfo .payment-info .info td input[type="text"] {
+        width:100% !important;
+    }
+    .shipping-payment-method .payment-method .payment-details {
+        float: right;
+    }
+    .shipping-payment-method .method-list li {
+        padding-left: 20px;
+    }
+    .simple-checkout-order-summary-body .order-summary-content .totals {
+        max-width: 100%;
+    }
+}
+.simple-checkout-data-left .inputs .labelforinputs label {
+    white-space: normal;
+    text-align: right;
+}
+
+a#scrollUp {
+    background-color: #FE980F;
+}
+
+@media all and (max-width: 480px) {
+    .simple-checkout-order-summary-body .button-cart-top h3 {
+        width: 100%;
+    }
+}

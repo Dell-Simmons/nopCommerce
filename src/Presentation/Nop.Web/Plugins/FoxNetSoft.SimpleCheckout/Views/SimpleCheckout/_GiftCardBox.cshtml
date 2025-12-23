@@ -1,0 +1,36 @@
+﻿@model FoxNetSoft.Plugin.Misc.SimpleCheckout.Models.SimpleCheckoutModel.GiftCardBoxModel
+@using System.Globalization
+@using System.Text
+@using Nop.Core
+@using Nop.Web.Framework.UI
+@using Nop.Web.Framework
+@using FoxNetSoft.Plugin.Misc.SimpleCheckout.Models
+@using FoxNetSoft.Plugin.Misc.SimpleCheckout.Extensions
+
+@if (Model.Display)
+{
+    <div class="inputs giftcard-box">
+        <nop-label asp-for="CurrentGiftCardCode" class="labelforinputs" />
+        <div class="couponblock">
+            <input name="giftcardcouponcode" id="giftcardcouponcode" type="text" class="gift-card-coupon-code" />
+            <div class="buttons">
+                <input type="button" name="applygiftcardcouponcode" id="applygiftcardcouponcode"
+                       value="@T("ShoppingCart.GiftCardCouponCode.Button")" class="button-2 apply-gift-card-coupon-code-button" onclick="fns_simplecheckout_applygiftcardcouponcode()" />
+            </div>
+            <div id="giftcardmessage" class="message @(Model.IsApplied ? "message-success" : "message-failure")">
+                @Model.Message
+            </div>
+        </div>
+    </div>
+    <script asp-location="Footer">
+        $(document).ready(function () {
+            $('#giftcardcouponcode').keydown(function (event) {
+                if (event.keyCode == 13) {
+                    fns_simplecheckout_applygiftcardcouponcode();
+                    return false;
+                }
+            });
+        });
+    </script>
+}
+     

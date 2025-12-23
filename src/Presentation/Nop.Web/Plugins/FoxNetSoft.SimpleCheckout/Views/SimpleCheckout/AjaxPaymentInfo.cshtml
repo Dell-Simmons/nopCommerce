@@ -1,0 +1,16 @@
+﻿@model CheckoutPaymentInfoModel
+@using Nop.Web.Models.Checkout
+@using Nop.Web.Framework.Infrastructure 
+@{
+    Layout = "";
+}
+<!script>
+    //$('.payment-info-next-step-button, .confirm-order-button').show().prop("onclick", null).unbind();
+</!script>
+<div class="section payment-info">
+    @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.OpCheckoutPaymentInfoTop })
+   <div class="info">
+       @await Component.InvokeAsync(Model.PaymentViewComponent)
+   </div>
+    @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.OpCheckoutPaymentInfoBottom })
+</div>

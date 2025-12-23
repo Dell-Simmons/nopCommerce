@@ -1,0 +1,331 @@
+﻿@model SimpleCheckoutModel
+@using Nop.Web.Framework.UI
+@using FoxNetSoft.Plugin.Misc.SimpleCheckout.Models
+@using FoxNetSoft.Plugin.Misc.SimpleCheckout.Helpers
+@using Nop.Core
+@using Nop.Core.Domain.Orders
+@using Nop.Services.Orders
+@inject IWorkContext workContext
+@inject IShoppingCartService shoppingCartService
+
+@{
+    Layout = "_ColumnsOne";
+
+    //title
+    NopHtml.AddTitleParts(T("PageTitle.Checkout").Text);
+    var linkcssfile = await ResolveViewPathHelper.GetThemesCSSPathAsync("Styles/styles.css");
+    //var linkcssfilertl = await ResolveViewPathHelper.GetThemesCSSPathAsync("Styles/styles.rtl.css");
+    IList<ShoppingCartItem> cart = await shoppingCartService.GetShoppingCartAsync(await workContext.GetCurrentCustomerAsync());//, ShoppingCartType.ShoppingCart, workContext.CurrentStore.Id);
+    bool moreThanTwoItems = cart.Count > 2;
+    string shippingoptiontag = "";
+    if (!Model.RequiresShipping)
+    {
+        shippingoptiontag = "style=display:none";
+    }
+    if (Model.ShippingMethods.Count < 2)
+    {
+        shippingoptiontag = "style=display:none";
+    }
+
+    string paymentmethodtag = "";
+    var isImpersonating = workContext.OriginalCustomerIfImpersonated != null;
+    if (!isImpersonating)
+    {
+        paymentmethodtag = "style=display:none";   
+    }
+    //page class
+    NopHtml.AppendPageCssClassParts("html-checkout-page");
+}
+<link rel="stylesheet" href="@Url.Content(linkcssfile)" />
+
+<script asp-location="Footer">
+    $(document).ready(function () {
+        $("input[name='shippingoption']").change(function () {
+            adjustChangeAddressMethod(4);
+            $('#message-error ul').html('');
+            $('#message-error-shipping ul').html('');
+        });
+        $("input[name='paymentmethod']").change(function () {
+            adjustChangeAddressMethod(5);
+            $('#message-error ul').html('');
+            $('#message-error-payment ul').html('');
+        });
+        $('#form-fns-simplecheckout').on('submit',
+            function () {
+                var button = $('#form-fns-simplecheckout').find('input[type="submit"][name="save"]');
+                button.prop('disabled', true);
+                setTimeout(function () {
+                    button.prop('disabled', false);
+                },
+                    1000);
+            });
+    });
+
+    function sc_AjaxShippingMethod_success(response) {
+        if (!response.hasshipmentmethods) {
+            //$('.shipping-method').hide();
+            return;
+        }
+        if (response.shippingmethods) {
+            __fns_simple_checkout_shippingmethod = sc_GetddlShippingMethodValue();
+            var ddlshippingoption = $('.shipping-method .method-list');
+            ddlshippingoption.html('');
+            $('.shipping-method').show();
+            $.each(response.shippingmethods, function (id, idata) {
+                var selectedvalue = '';
+                if (__fns_simple_checkout_shippingmethod == idata.Name + '___' + idata.ShippingRateComputationMethodSystemName)
+                    selectedvalue = 'checked = "checked"';
+
+                var newoption = '<li><div class="shipping-method-block"><div class="method-name">';
+                newoption = newoption + '<input id="shippingoption_' + id + '" type="radio" name="shippingoption" value="' + idata.Name + '___' + idata.ShippingRateComputationMethodSystemName + '" ' + selectedvalue + ' />';
+                newoption = newoption + '<label for="shippingoption_' + id + '">' + idata.Name;
+                if (idata.Fee && idata.Fee.length > 0)
+                    newoption = newoption + '(' + idata.Fee + ')';
+                newoption = newoption + '</label></div>';
+
+                if (idata.Description && idata.Description.length > 0) {
+                    newoption = newoption + '<div class="method-description">';
+                    newoption = newoption + idata.Description
+                    newoption = newoption + '</div>';
+                }
+
+                newoption = newoption + '</div></li>';
+                ddlshippingoption.append(newoption);
+            });
+            if ($("input:radio[name=shippingoption]").is(':checked') === false)
+                $("input:radio[name=shippingoption]:first").attr('checked', true);
+            $("input[name='shippingoption']").change(function () {
+                adjustChangeAddressMethod(4);
+                $('#message-error ul').html('');
+                $('#message-error-shipping ul').html('');
+            });
+        }
+        return true;
+    }
+    function sc_AjaxPaymentMethod_success(response) {
+        if (!response.haspaymentmethods) {
+            //$('.payment-method, .simple-checkout-paymentinfo').hide();
+            //$('.confirm-order-button').prop("onclick", null).unbind();
+            //$('.confirm-order-button').click(confirmButton);
+            return;
+        }
+        if (response.paymentmethods) {
+            __fns_simple_checkout_paymentmethod = sc_GetddlPaymentMethodValue();
+            var ddlpaymentmethod = $('.payment-method .method-list');
+            ddlpaymentmethod.html('');
+            $('.payment-method, .simple-checkout-paymentinfo').show();
+            $.each(response.paymentmethods, function (id, idata) {
+                var selectedvalue = '';
+                if (__fns_simple_checkout_paymentmethod == idata.PaymentMethodSystemName)
+                    selectedvalue = 'checked = "checked"';
+
+                var newoption = '<li><div class="method-name">';
+                if (idata.LogoUrl && idata.LogoUrl.length > 0)
+                    newoption = newoption + '<div class="payment-logo"><img src="' + idata.LogoUrl + '" alt="' + idata.Name + '" /></div>';
+                newoption = newoption + '<div class="payment-details">';
+                newoption = newoption + '<input id="paymentmethod_' + id + '" type="radio" name="paymentmethod" value="' + idata.PaymentMethodSystemName + '" ' + selectedvalue + ' />';
+                newoption = newoption + '<label for="paymentmethod_' + id + '">' + idata.Name;
+                if (idata.Fee && idata.Fee.length > 0)
+                    newoption = newoption + '(' + idata.Fee + ')';
+                newoption = newoption + '</label></div>';
+                newoption = newoption + '</div></li>';
+                ddlpaymentmethod.append(newoption);
+            });
+            if ($("input:radio[name=paymentmethod]").is(':checked') === false)
+                $("input:radio[name=paymentmethod]:first").attr('checked', true);
+            $("input[name='paymentmethod']").change(function () {
+                adjustChangeAddressMethod(5);
+                $('#message-error ul').html('');
+                $('#message-error-payment ul').html('');
+            });
+            adjustPaymentInfo();
+        }
+        return true;
+    }
+
+    function sc_GetddlPaymentMethodValue() {
+        return $("input[name='paymentmethod']:checked").val();
+    }
+    function sc_GetddlShippingMethodValue() {
+        return $("input[name='shippingoption']:checked").val();
+    }
+</script>
+
+<div class="page simple-checkout-page">
+    @await Html.PartialAsync(await ResolveViewPathHelper.GetThemesPathAsync("SimpleCheckout/_SimpleCheckoutScript"), Model)
+    <div class="page-title">
+        <h1>@T("PageTitle.Checkout")</h1>
+    </div>
+    <div class="clear">
+    </div>
+    <div class="page-body simple-checkout-data">
+        @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = "opc_content_before" })
+        @if (Model.IsGuest)
+        {
+            <div class="simple-checkout-log">
+                <p>
+                    <label>
+                        @T("FoxNetSoft.Plugin.Misc.SimpleCheckout.Guest.MessageForLogin")
+                    </label>
+                    <a href="@Url.RouteUrl("Login")" class="button-2 ico-login">@T("Account.Login")</a>
+                </p>
+            </div>
+        }
+        <div class="message-error" id="message-error">
+            <ul>
+                @for (int i = 0; i < Model.WarningsShipping.Count; i++)
+                {
+                    <li>@Model.WarningsShipping[i]</li>
+                }
+                @for (int i = 0; i < Model.WarningsPayment.Count; i++)
+                {
+                    <li>@Model.WarningsPayment[i]</li>
+                }
+                @for (int i = 0; i < Model.Warnings.Count; i++)
+                {
+                    <li>@Model.Warnings[i]</li>
+                }
+            </ul>
+        </div>
+        <form asp-route="SimpleCheckout" method="post" id="form-fns-simplecheckout">
+            <nop-antiforgery-token />
+        	@await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = "simplecheckout_top" })
+            <div class="simple-checkout-data-left">
+                <input asp-for="isPaymentWorkflowRequired" type="hidden" />
+                <input asp-for="RequiresShipping" type="hidden" />
+                @await Html.PartialAsync(await ResolveViewPathHelper.GetThemesPathAsync("SimpleCheckout/_PrimaryAddress"), Model)
+                @if (Model.DiscountBox.Display)
+                {
+                    @await Html.PartialAsync(await ResolveViewPathHelper.GetThemesPathAsync("SimpleCheckout/_DiscountBox"), Model.DiscountBox)
+                }
+                @if (Model.GiftCardBox.Display)
+                {
+                    @await Html.PartialAsync(await ResolveViewPathHelper.GetThemesPathAsync("SimpleCheckout/_GiftCardBox"), Model.GiftCardBox)
+                }
+            </div>
+            <div class="simple-checkout-data-rigth">
+              <h3 class="primary-address-title">Your Payment Information</h3>
+                <div class="shipping-payment-method" @paymentmethodtag>
+                    <div class="shipping-method" @shippingoptiontag>
+                        <div class="shipping-title">
+                            <h3>@T("Checkout.SelectShippingMethod")</h3>
+                        </div>
+                        <div class="shipping-block">
+                            <span id="shipmentmethods-loading-progress" style="display: none;" class="please-wait">@T("Common.Wait")</span>
+                            <ul class="method-list">
+                                @for (int i = 0; i < Model.ShippingMethods.Count; i++)
+                                {
+                                    var shippingMethod = Model.ShippingMethods[i];
+                                    <li>
+                                        <div class="shipping-method-block">
+                                            <div class="method-name">
+                                                <input id="shippingoption_@(i)" type="radio" name="shippingoption" value="@(shippingMethod.Name)___@(shippingMethod.ShippingRateComputationMethodSystemName)" checked="@shippingMethod.Selected" />
+                                                <label for="shippingoption_@(i)">@shippingMethod.Name @(!String.IsNullOrEmpty(shippingMethod.Fee) ? " (" + shippingMethod.Fee + ")" : "")</label>
+                                            </div>
+                                            @if (!String.IsNullOrEmpty(shippingMethod.Description))
+                                            {
+                                                <div class="method-description">
+                                                    @Html.Raw(shippingMethod.Description)
+                                                </div>
+                                            }
+                                        </div>
+                                    </li>
+                                }
+                            </ul>
+                            <div class="message-error" id="message-error-shipping">
+                                <ul>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="payment-method" @(!Model.isPaymentWorkflowRequired ? Html.Raw("style=\"display:none\"") : null)>
+                        <div class="payment-title">
+                            <h3>@T("Checkout.SelectPaymentMethod")</h3>
+                        </div>
+                        <div class="payment-block">
+                            @if (Model.DisplayRewardPoints && Model.PaymentMethods.Count > 0)
+                            {
+                                <div class="use-reward-points">
+                                    @Html.EditorFor(model => model.UseRewardPoints)
+                                    <label for="UseRewardPoints">
+                                        @string.Format(T("Checkout.UseRewardPoints").Text, Model.RewardPointsToUse, Model.RewardPointsBalance, Model.RewardPointsToUseAmount)
+                                    </label>
+                                </div>
+                            }
+                            <span id="paymentmethods-loading-progress" style="display: none;" class="please-wait">@T("Common.Wait")</span>
+                            <ul class="method-list">
+                                @for (int i = 0; i < Model.PaymentMethods.Count; i++)
+                                {
+                                    var paymentMethod = Model.PaymentMethods[i];
+                                    var paymentMethodName = paymentMethod.Name;
+                                    if (!String.IsNullOrEmpty(paymentMethod.Fee))
+                                    {
+                                        //paymentMethodName = T("Checkout.SelectPaymentMethod.MethodAndFee", paymentMethodName, paymentMethod.Fee).Text;
+                                        paymentMethodName = paymentMethodName + " (" + paymentMethod.Fee + ")";
+                                    }
+                                    <li>
+                                        <div class="method-name">
+                                            @if (!String.IsNullOrEmpty(paymentMethod.LogoUrl))
+                                            {
+                                                <div class="payment-logo">
+                                                    <img src="@paymentMethod.LogoUrl" alt="@paymentMethodName" />
+                                                </div>
+                                            }
+                                            <div class="payment-details">
+                                                <input id="paymentmethod_@(i)" type="radio" name="paymentmethod" value="@(paymentMethod.PaymentMethodSystemName)" checked="@paymentMethod.Selected" />
+                                                <label for="paymentmethod_@(i)">@paymentMethodName</label>
+                                            </div>
+                                        </div>
+                                    </li>
+                                }
+                            </ul>
+                            <div class="message-error" id="message-error-payment">
+                                <ul>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="simple-checkout-paymentinfo" @(!Model.isPaymentWorkflowRequired ? Html.Raw("style=\"display:none\"") : null)></div>
+                @if (moreThanTwoItems)
+                {
+                    <div class="buttons">
+                        <input type="submit" name="save" value="@T("Checkout.ConfirmButton")" class="button-1 confirm-order-button" />
+                    </div>
+                }
+                <div class="simple-checkout-order-summary-body"></div>
+                <div class="simple-checkout-confirm">
+                    @if (!String.IsNullOrEmpty(Model.MinOrderTotalWarning))
+                    {
+                        <span class="min-order-warning message-error">@Model.MinOrderTotalWarning</span>
+                    }
+                    else
+                    {
+                        if (Model.TermsOfServiceOnOrderConfirmPage)
+                        {
+                            <div id="terms-of-service-warning-box" title="@T("Checkout.TermsOfService")" style="display:none;">
+                                <p>@T("Checkout.TermsOfService.PleaseAccept")</p>
+                            </div>
+                            <div class="terms-of-service">
+                                <input id="termsofservice" type="checkbox" name="termsofservice" />
+                                <label for="termsofservice">@T("Checkout.TermsOfService.IAccept")</label>
+                                <span class="read" onclick="javascript:OpenWindow('@Url.RouteUrl("TopicPopup", new { SystemName = "conditionsofUse" })', 450, 500, true)">@T("Checkout.TermsOfService.Read")</span>
+                            </div>
+                        }
+                        <div class="buttons">
+                            <input type="submit" name="save" value="@T("Checkout.ConfirmButton")" class="button-1 confirm-order-button" />
+                        </div>
+                        <div class="addon-buttons">
+                            @*Payment method buttons (e.g. GoogleCheckoutButton, Paypal Express)*@
+                            @foreach (var pm in Model.ButtonPaymentMethodViewComponents)
+                            {
+                                @await Component.InvokeAsync(pm)
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
+        	@await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = "simplecheckout_bottom" })
+        </form>
+    </div>
+</div>

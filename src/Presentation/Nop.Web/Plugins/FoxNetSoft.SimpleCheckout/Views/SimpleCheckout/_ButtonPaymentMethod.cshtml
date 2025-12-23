@@ -1,0 +1,10 @@
+﻿@model FoxNetSoft.Plugin.Misc.SimpleCheckout.Models.SimpleCheckoutModel
+@using FoxNetSoft.Plugin.Misc.SimpleCheckout.Models
+
+@if (Model.ButtonPaymentMethodActionNames != null && Model.ButtonPaymentMethodActionNames.Count > 0)
+{
+    for (int i = 0; i < Model.ButtonPaymentMethodActionNames.Count; i++)
+    {
+        @Html.Action(Model.ButtonPaymentMethodActionNames[i], Model.ButtonPaymentMethodControllerNames[i], Model.ButtonPaymentMethodRouteValues[i])
+    }
+}

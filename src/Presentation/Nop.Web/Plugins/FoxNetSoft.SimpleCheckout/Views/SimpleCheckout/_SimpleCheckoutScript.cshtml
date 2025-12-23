@@ -1,0 +1,1268 @@
+﻿@model FoxNetSoft.Plugin.Misc.SimpleCheckout.Models.SimpleCheckoutModel
+@using System.Globalization
+@using System.Text
+@using Nop.Web.Framework.UI
+@using FoxNetSoft.Plugin.Misc.SimpleCheckout.Extensions
+@{
+    NopHtml.AppendCssFileParts("~/lib_npm/jquery-ui-dist/jquery-ui.min.css");
+    var simpleCheckoutTableScripts = new StringBuilder();
+    string simpleCheckoutPrimaryAddressesTableName = "simplecheckout_primary_addresses";
+    string simpleCheckoutSecondaryAddressesTableName = "simplecheckout_secondary_addresses";
+    bool setcommas = false;
+    simpleCheckoutTableScripts.AppendFormat(CultureInfo.InvariantCulture, "var {0} = [ \n", simpleCheckoutPrimaryAddressesTableName);
+    for (int i = 0; i < Model.ExistingPrimaryAddresses.Count(); i++)
+    {
+        var address = Model.ExistingPrimaryAddresses[i];
+        if (address != null)
+        {
+            simpleCheckoutTableScripts.AppendFormat(CultureInfo.InvariantCulture, "{0}{1}", setcommas ? "," : "", address.ConvertToJson());
+            setcommas = true;
+        }
+    }
+    simpleCheckoutTableScripts.AppendFormat(CultureInfo.InvariantCulture, "]; \n");
+
+    simpleCheckoutTableScripts.AppendFormat(CultureInfo.InvariantCulture, "var {0} = [ \n", simpleCheckoutSecondaryAddressesTableName);
+    setcommas = false;
+    for (int i = 0; i < Model.ExistingSecondaryAddresses.Count(); i++)
+    {
+        var address = Model.ExistingSecondaryAddresses[i];
+        if (address != null)
+        {
+            simpleCheckoutTableScripts.AppendFormat(CultureInfo.InvariantCulture, "{0}{1}", setcommas ? "," : "", address.ConvertToJson());
+            setcommas = true;
+        }
+    }
+    simpleCheckoutTableScripts.AppendFormat(CultureInfo.InvariantCulture, "]; \n");
+}
+@*<script src="http://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>*@
+<script asp-location="Footer">
+    var __ShimpleCheckout_loadWaiting=false;
+    var __fns_simple_checkout_discountcurrentcode= "";
+    var __fns_simple_checkout_waitmessage="@T("Common.Wait")";
+    var __fns_simple_checkout_shippingmethod="";
+    var __fns_simple_checkout_paymentmethod="";
+
+    var currentSecondaryAddress=null;
+    var secondaryaddress_popwindow_selector="#secondary-address-popwindow";
+    var isNewSecondaryAddress=false;
+    var __ShimpleCheckout_SkipLoading=false;
+
+    var __fns_simple_checkout_timeout;
+
+    // simpleCheckout table initialize
+    @Html.Raw(simpleCheckoutTableScripts.ToString())
+
+    function getPrimaryAddress()
+    {
+        var addressid= $("#@Html.IdFor(model => model.PrimaryAddress.Id)").val();
+        var firstname= $("#@Html.IdFor(model => model.PrimaryAddress.FirstName)").val();
+        var lastname= $("#@Html.IdFor(model => model.PrimaryAddress.LastName)").val();
+        var phonenumber= $("#@Html.IdFor(model => model.PrimaryAddress.PhoneNumber)").val();
+        var faxnumber= $("#@Html.IdFor(model => model.PrimaryAddress.FaxNumber)").val();
+        var email= $("#@Html.IdFor(model => model.PrimaryAddress.Email)").val();
+        var company= $("#@Html.IdFor(model => model.PrimaryAddress.Company)").val();
+        var countryid= $("#@Html.IdFor(model => model.PrimaryAddress.CountryId)").val();
+        var stateprovinceid= $("#@Html.IdFor(model => model.PrimaryAddress.StateProvinceId)").val();
+        var city= $("#@Html.IdFor(model => model.PrimaryAddress.City)").val();
+        var address1= $("#@Html.IdFor(model => model.PrimaryAddress.Address1)").val();
+        var address2= $("#@Html.IdFor(model => model.PrimaryAddress.Address2)").val();
+        var county= $("#@Html.IdFor(model => model.PrimaryAddress.County)").val();
+        var zippostalcode= $("#@Html.IdFor(model => model.PrimaryAddress.ZipPostalCode)").val();
+        var country= $("#@Html.IdFor(model => model.PrimaryAddress.CountryId) option:selected").text();
+        var stateprovince= $("#@Html.IdFor(model => model.PrimaryAddress.StateProvinceId) option:selected").text();
+
+        // poor address's validation
+        return (addressid == "") ? null : { Id: addressid, FirstName: firstname,LastName :lastname,
+            PhoneNumber:phonenumber,FaxNumber:faxnumber,
+            Email:email,Company: company,
+            CountryId: countryid,StateProvinceId:stateprovinceid,
+            City: city, Address1: address1, Address2: address2, County: county, ZipPostalCode:zippostalcode,
+            Country:country,StateProvinceName:stateprovince};
+    };
+
+    function getSecondaryAddress()
+    {
+        @if (!Model.PluginSettings.AllowSecondaryAddress)
+        {
+            <text>
+                return getPrimaryAddress();
+            </text>
+        }
+        else
+        {
+            <text>
+                if (!$("#@Html.IdFor(model => model.UseSecondaryAddress)").prop("checked"))
+                {
+                    return getPrimaryAddress();
+                };
+                var addressid= $("#@Html.IdFor(model => model.SecondaryAddress.Id)").val();
+                var firstname= $("#@Html.IdFor(model => model.SecondaryAddress.FirstName)").val();
+                var lastname= $("#@Html.IdFor(model => model.SecondaryAddress.LastName)").val();
+                var phonenumber= $("#@Html.IdFor(model => model.SecondaryAddress.PhoneNumber)").val();
+                var faxnumber= $("#@Html.IdFor(model => model.SecondaryAddress.FaxNumber)").val();
+                var email= $("#@Html.IdFor(model => model.SecondaryAddress.Email)").val();
+                var company= $("#@Html.IdFor(model => model.SecondaryAddress.Company)").val();
+                var countryid= $("#@Html.IdFor(model => model.SecondaryAddress.CountryId)").val();
+                var stateprovinceid= $("#@Html.IdFor(model => model.SecondaryAddress.StateProvinceId)").val();
+                var city= $("#@Html.IdFor(model => model.SecondaryAddress.City)").val();
+                var address1= $("#@Html.IdFor(model => model.SecondaryAddress.Address1)").val();
+                var address2 = $("#@Html.IdFor(model => model.SecondaryAddress.Address2)").val();
+                var county= $("#@Html.IdFor(model => model.SecondaryAddress.County)").val();
+                var zippostalcode= $("#@Html.IdFor(model => model.SecondaryAddress.ZipPostalCode)").val();
+                var country= $("#@Html.IdFor(model => model.SecondaryAddress.CountryId) option:selected").text();
+                var stateprovince= $("#@Html.IdFor(model => model.SecondaryAddress.StateProvinceId) option:selected").text();
+
+                // poor address's validation
+                return (addressid == "") ? null : { Id: addressid, FirstName: firstname,LastName :lastname,
+                    PhoneNumber:phonenumber,FaxNumber:faxnumber,
+                    Email:email,Company: company,
+                    CountryId: countryid,StateProvinceId:stateprovinceid,
+                    City: city, Address1: address1, Address2: address2, County: county, ZipPostalCode:zippostalcode,
+                    Country:country,StateProvinceName:stateprovince};
+            </text>
+        }
+    };
+
+    function changePrimaryAddress(id)
+    {
+        // simpleCheckout Addresses table
+        for (var i = 0; i < @(simpleCheckoutPrimaryAddressesTableName).length; i++) {
+            var address= @(simpleCheckoutPrimaryAddressesTableName)[i];
+            if (address!= undefined && address.Id==id) {
+                setAddress(true,address);
+                adjustChangeAddressMethod(1);
+                break;
+            }
+        }
+    };
+
+    function changeSecondaryAddress(id)
+    {
+        // simpleCheckout Addresses table
+        for (var i = 0; i < @(simpleCheckoutSecondaryAddressesTableName).length; i++) {
+            var address= @(simpleCheckoutSecondaryAddressesTableName)[i];
+            if (address!= undefined && address.Id==id) {
+                setAddress(false,address);
+                break;
+            }
+        }
+    };
+
+    function copySecondaryToPrimaryAddress()
+    {
+        var address=getPrimaryAddress();
+        if (address!= undefined) {
+            $("#existingsecondaryaddresses").val(address.Id);
+            setAddress(false,address);
+        }
+    };
+
+    function saveSecondaryAddress()
+    {
+        var address=getSecondaryAddress() ;
+        if (address!= undefined) {
+            currentSecondaryAddress=address;
+
+            $(".secondary-address-description-message .name").text(address.FirstName+" "+address.LastName);
+            $(".secondary-address-description-message .email").text("@T("Address.Fields.Email"): "+address.Email);
+            $(".secondary-address-description-message .phone").text("@T("Address.Fields.PhoneNumber"): "+address.PhoneNumber);
+            $(".secondary-address-description-message .fax").text("@T("Address.Fields.FaxNumber"): "+address.FaxNumber);
+            $(".secondary-address-description-message .company").text(address.Company);
+            $(".secondary-address-description-message .address1").text(address.Address1);
+            $(".secondary-address-description-message .address2").text(address.Address2);
+            $(".secondary-address-description-message .county").text(address.County);
+            var cityStateZip="";
+                @if (Model.SecondaryAddress.CityEnabled)
+                {
+                    <text>cityStateZip = address.City;</text>
+                    if (Model.SecondaryAddress.StateProvinceEnabled || Model.SecondaryAddress.ZipPostalCodeEnabled)
+                    {
+                        <text>cityStateZip += ",";</text>
+                    }
+                }
+                @if (Model.SecondaryAddress.StateProvinceEnabled)
+                {
+                    <text>
+                    if (cityStateZip.length>0)
+                    {
+                        cityStateZip =cityStateZip+ " ";
+                    }
+                    cityStateZip = cityStateZip+address.StateProvinceName;
+                    </text>
+                }
+                @if (Model.SecondaryAddress.ZipPostalCodeEnabled)
+                {
+                    <text>
+                    if (cityStateZip.length>0)
+                    {
+                        cityStateZip = cityStateZip+" ";
+                    }
+                    cityStateZip = cityStateZip+address.ZipPostalCode;
+                    </text>
+                }
+            $(".secondary-address-description-message .city-state-zip").text(cityStateZip);
+            $(".secondary-address-description-message .country").text(address.Country);
+
+            $(".secondary-address-description").show();
+        }
+        if ($(secondaryaddress_popwindow_selector).hasClass('ui-dialog-content'))
+        {
+            $(secondaryaddress_popwindow_selector).dialog("destroy");
+            var validation_result=0;
+            validation_result=validation_result+!$("#@Html.IdFor(model => model.SecondaryAddress.FirstName)").valid();
+            validation_result=validation_result+!$("#@Html.IdFor(model => model.SecondaryAddress.LastName)").valid();
+            validation_result=validation_result+!$("#@Html.IdFor(model => model.SecondaryAddress.Email)").valid();
+
+            @if (Model.SecondaryAddress.PhoneEnabled && Model.SecondaryAddress.PhoneEnabled)
+            {
+            <text>
+            validation_result=validation_result+!$("#@Html.IdFor(model => model.SecondaryAddress.PhoneNumber)").valid();
+            </text>
+            }
+            @if (Model.SecondaryAddress.FaxEnabled && Model.SecondaryAddress.FaxEnabled)
+            {
+            <text>
+            validation_result=validation_result+!$("#@Html.IdFor(model => model.SecondaryAddress.FaxNumber)").valid();
+            </text>
+            }
+            @if (Model.SecondaryAddress.CompanyEnabled && Model.SecondaryAddress.CompanyRequired)
+            {
+            <text>
+            validation_result=validation_result+!$("#@Html.IdFor(model => model.SecondaryAddress.Company)").valid();
+            </text>
+            }
+            @if (Model.SecondaryAddress.CityEnabled && Model.SecondaryAddress.CityRequired)
+            {
+            <text>
+            validation_result=validation_result+!$("#@Html.IdFor(model => model.SecondaryAddress.City)").valid();
+            </text>
+            }
+            @if (Model.SecondaryAddress.StreetAddressEnabled && Model.SecondaryAddress.StreetAddressRequired)
+            {
+            <text>
+            validation_result=validation_result+!$("#@Html.IdFor(model => model.SecondaryAddress.Address1)").valid();
+            </text>
+            }
+            @if (Model.SecondaryAddress.StreetAddress2Enabled && Model.SecondaryAddress.StreetAddress2Required)
+            {
+            <text>
+            validation_result=validation_result+!$("#@Html.IdFor(model => model.SecondaryAddress.Address2)").valid();
+            </text>
+            }
+            @if (Model.SecondaryAddress.CountyEnabled && Model.SecondaryAddress.CountyRequired)
+            {
+            <text>
+            validation_result=validation_result+!$("#@Html.IdFor(model => model.SecondaryAddress.County)").valid();
+            </text>
+            }
+            @if (Model.SecondaryAddress.ZipPostalCodeEnabled && Model.SecondaryAddress.ZipPostalCodeRequired)
+            {
+            <text>
+            validation_result=validation_result+!$("#@Html.IdFor(model => model.SecondaryAddress.ZipPostalCode)").valid();
+            </text>
+            }
+            if (validation_result)
+            {
+                openSecondaryAddressWindow();
+                return;
+            }
+            adjustChangeAddressMethod(2);
+        }
+    };
+
+    function cancelSecondaryAddress()
+    {
+        var address=currentSecondaryAddress;
+        if (address!= undefined) {
+            setAddress(false,address);
+        }
+        $(secondaryaddress_popwindow_selector).dialog("destroy");
+        if (isNewSecondaryAddress)
+        {
+            $(".secondary-address-description").hide();
+            $("#@Html.IdFor(model => model.UseSecondaryAddress)").prop( "checked", false );
+        }
+    };
+
+    function showSecondaryAddressWindow(){
+        if($(this).is(":checked")) {
+            isNewSecondaryAddress=true;
+            openSecondaryAddressWindow();
+        }
+        else
+        {
+            $(".secondary-address-description").hide();
+            adjustChangeAddressMethod(2);
+        }
+    }
+
+    function editSecondaryAddress(){
+        isNewSecondaryAddress=false;
+        openSecondaryAddressWindow();
+    }
+
+    function openSecondaryAddressWindow() {
+        $(secondaryaddress_popwindow_selector).dialog({
+            autoOpen: true,
+            dialogClass:"fnsscpopaddressform",
+            closeOnEscape: true,
+            width: 550,
+            minHeight:"auto",
+            modal: true,
+            close: function () {
+                $(this).dialog('destroy');
+            },
+            open: function(event, ui) {
+                //hide close button.
+                $(this).parent().children().children('.ui-dialog-titlebar-close').hide();
+            }
+        });
+    }
+
+    function setAddress(isPrimary,address)
+    {
+        __ShimpleCheckout_SkipLoading=true;
+        if (address!= undefined) {
+            if (isPrimary)
+            {
+                $("#@Html.IdFor(model => model.PrimaryAddress.FirstName)").val(address.FirstName);
+                $("#@Html.IdFor(model => model.PrimaryAddress.LastName)").val(address.LastName);
+                $("#@Html.IdFor(model => model.PrimaryAddress.PhoneNumber)").val(address.PhoneNumber);
+                $("#@Html.IdFor(model => model.PrimaryAddress.FaxNumber)").val(address.FaxNumber);
+                $("#@Html.IdFor(model => model.PrimaryAddress.Email)").val(address.Email);
+                $("#@Html.IdFor(model => model.PrimaryAddress.Company)").val(address.Company);
+                $("#@Html.IdFor(model => model.PrimaryAddress.CountryId)").val(address.CountryId);
+                $("#@Html.IdFor(model => model.PrimaryAddress.CountryId)").change();
+                $("#@Html.IdFor(model => model.PrimaryAddress.StateProvinceId)").val(address.StateProvinceId);
+                $("#@Html.IdFor(model => model.PrimaryAddress.City)").val(address.City);
+                $("#@Html.IdFor(model => model.PrimaryAddress.Address1)").val(address.Address1);
+                $("#@Html.IdFor(model => model.PrimaryAddress.Address2)").val(address.Address2);
+                $("#@Html.IdFor(model => model.PrimaryAddress.County)").val(address.County);
+                $("#@Html.IdFor(model => model.PrimaryAddress.ZipPostalCode)").val(address.ZipPostalCode);
+                $.each(address.CustomAddressAttributes, function (key, value) {
+                    $("#primaryaddress_" + key).val(value);
+                });
+            }
+            else
+            {
+                $("#@Html.IdFor(model => model.SecondaryAddress.FirstName)").val(address.FirstName);
+                $("#@Html.IdFor(model => model.SecondaryAddress.LastName)").val(address.LastName);
+                $("#@Html.IdFor(model => model.SecondaryAddress.PhoneNumber)").val(address.PhoneNumber);
+                $("#@Html.IdFor(model => model.SecondaryAddress.FaxNumber)").val(address.FaxNumber);
+                $("#@Html.IdFor(model => model.SecondaryAddress.Email)").val(address.Email);
+                $("#@Html.IdFor(model => model.SecondaryAddress.Company)").val(address.Company);
+                $("#@Html.IdFor(model => model.SecondaryAddress.CountryId)").val(address.CountryId);
+                $("#@Html.IdFor(model => model.SecondaryAddress.CountryId)").change();
+                $("#@Html.IdFor(model => model.SecondaryAddress.StateProvinceId)").val(address.StateProvinceId);
+                $("#@Html.IdFor(model => model.SecondaryAddress.City)").val(address.City);
+                $("#@Html.IdFor(model => model.SecondaryAddress.Address1)").val(address.Address1);
+                $("#@Html.IdFor(model => model.SecondaryAddress.Address2)").val(address.Address2);
+                $("#@Html.IdFor(model => model.SecondaryAddress.County)").val(address.County);
+                $("#@Html.IdFor(model => model.SecondaryAddress.ZipPostalCode)").val(address.ZipPostalCode);
+                $.each(address.CustomAddressAttributes, function (key, value) {
+                    $("#secondaryaddress_" + key).val(value);
+                });
+            }
+        }
+        __ShimpleCheckout_SkipLoading=false;
+    };
+
+    function fns_simplecheckout_applydiscountcouponcode()
+    {
+        var discountcouponcode= $("#discountcouponcode").val();
+        if (discountcouponcode != undefined && discountcouponcode.length > 0 && $.trim(discountcouponcode).length > 0) {
+            var postData = {
+                discountcouponcode: discountcouponcode
+            };
+            addAntiForgeryToken(postData);
+            $.ajax({
+                cache: false,
+                url: '@Url.Action("ApplyDiscountCoupon")',
+                type: 'post',
+                async: true,
+                data: postData,
+                success: function (response) {
+                    if (response.success)
+                    {
+                        if (response.updatediscountboxhtml.length>0) {
+                            $('.coupon-box').replaceWith(response.updatediscountboxhtml);
+                        }
+                        fns_simple_checkout_changecart();
+                    }
+                    else
+                    {
+                        $("#discountcouponcode").val(__fns_simple_checkout_discountcurrentcode);
+                        if (response.message.length>0)
+                        {
+                            alert(response.message);
+                        }
+                    }
+                    return true;
+                },
+                error: function () {
+                    alert('Failed to save discount code.');
+                    $("#discountcouponcode").val(__fns_simple_checkout_discountcurrentcode);
+                    return false;
+                }
+            });
+        }
+        else
+        {
+            $("#discountcouponcode").val(__fns_simple_checkout_discountcurrentcode);
+        }
+    };
+
+    function fns_simplecheckout_removediscountcouponcode(discountId)
+    {
+        var postData = {
+            discountId: discountId
+        };
+        addAntiForgeryToken(postData);
+        $.ajax({
+            cache: false,
+            url: '@Url.Action("RemoveDiscountCoupon")',
+                                type: 'post',
+                                async: true,
+                                data: postData,
+                                success: function (response) {
+                                    if (response.success)
+                                    {
+                                        __fns_simple_checkout_discountcurrentcode="";
+                                        if (response.updatediscountboxhtml.length>0) {
+                                            $('.coupon-box').replaceWith(response.updatediscountboxhtml);
+                                        }
+                                        fns_simple_checkout_changecart();
+                                    }
+                                    else
+                                    {
+                                        $("#discountcouponcode").val(__fns_simple_checkout_discountcurrentcode);
+                                        if (response.message.length>0){
+                                            alert(response.message);
+                                        }
+                                    }
+                                    return true;
+                                },
+                                error: function () {
+                                    alert('Failed to remove discount code.');
+                                    $("#discountcouponcode").val(__fns_simple_checkout_discountcurrentcode);
+                                    return false;
+                                }
+         });
+    };
+
+    function fns_simplecheckout_applygiftcardcouponcode()
+    {
+        var giftcardcouponcode= $("#giftcardcouponcode").val();
+        $("#giftcardcouponcode").val("");
+        if (giftcardcouponcode != undefined && giftcardcouponcode.length > 0 && $.trim(giftcardcouponcode.length > 0)) {
+            var postData = {
+                giftcardcouponcode: giftcardcouponcode
+            };
+            addAntiForgeryToken(postData);
+            $.ajax({
+                cache: false,
+                url: '@Url.Action("ApplyGiftCard")',
+                                    type: 'post',
+                                    async: true,
+                                    data: postData,
+                                    success: function (response) {
+                                        if (response.success)
+                                        {
+                                            $('#giftcardmessage').text("");
+                                            fns_simple_checkout_changecart();
+                                        }
+                                        else
+                                        {
+                                            $('#giftcardmessage').text(response.message);
+                                        }
+                                        return true;
+                                    },
+                                    error: function () {
+                                        alert('Failed to save gift card.');
+                                        $('#giftcardmessage').text("Failed to save gift card.");
+                                        return false;
+                                    }
+            });
+         }
+    };
+
+    function fns_simplecheckout_removegiftcardcouponcode(giftCardId)
+    {
+        var postData = {
+            giftCardId: giftCardId
+        };
+        addAntiForgeryToken(postData);
+        $.ajax({
+            cache: false,
+            url: '@Url.Action("RemoveGiftCard")',
+                        type: 'post',
+                        async: true,
+                        data: postData,
+                        success: function (response) {
+                            if (response.success)
+                            {
+                                $('#giftcardmessage').text("");
+                                fns_simple_checkout_changecart();
+                            }
+                            else
+                            {
+                                $('#giftcardmessage').text(response.message);
+                            }
+                            return true;
+                        },
+                        error: function () {
+                            alert('Failed to remove gift card.');
+                            return false;
+                        }
+                    });
+    };
+
+    // update OrderTotals from ShoppingCart
+    function adjustOrderTotals()
+    {
+        if (__ShimpleCheckout_loadWaiting)
+            return true;
+        __ShimpleCheckout_loadWaiting=true;
+
+        var tmpSelect = $('.cart-footer .totals');
+        tmpSelect.html('');
+
+        var ordertotalsProgress = $("#order-totals-loading-progress");
+        if (ordertotalsProgress.length <1)
+        {
+            tmpSelect.prepend("<span id=\"order-totals-loading-progress\" style=\"display: none;\" class=\"please-wait\"></span>");
+            ordertotalsProgress = $("#order-totals-loading-progress");
+            ordertotalsProgress.text(__fns_simple_checkout_waitmessage);
+        }
+        ordertotalsProgress.show();
+        var postData = {
+        };
+        addAntiForgeryToken(postData);
+        $.ajax({
+            cache: false,
+            url: '@Url.Action("OrderTotals")',
+            type: 'post',
+            data: postData,
+            success: function (data) {
+                var tmpSelect = $('.cart-footer .totals');
+                tmpSelect.html('');
+                tmpSelect.append(data);
+                __ShimpleCheckout_loadWaiting=false;
+                return true;
+            },
+            error: function () {
+                alert('Failed to retrieve order totals.');
+                __ShimpleCheckout_loadWaiting=false;
+                return false;
+            }
+        });
+        return true;
+    };
+    function fns_simplecheckout_removecartitem(cartItemId)
+    {
+        if (cartItemId==0)
+            return;
+        var postData = {
+            Id: cartItemId
+        };
+        addAntiForgeryToken(postData);
+        $.ajax({
+            cache: false,
+            url: '@Url.Action("RemoveShoppingCartItem")',
+            type: 'post',
+            async: true,
+            data: postData,
+            success: function (response) {
+                if (response.success)
+                {
+                    $('#cartitem-'+cartItemId).remove();
+                    fns_simple_checkout_changecart();
+                }
+                else
+                {
+                    if (response.message.length>0)
+                    {
+                        alert(response.message);
+                    }
+                    if (response.redirecturl.length>0)
+                    {
+                        location.href=response.redirecturl;
+                    }
+                }
+                return true;
+            },
+            error: function () {
+                alert('Failed to remove shopping cart item.');
+                return false;
+            }
+        });
+    };
+    function fns_shoppingcartmakespinner()
+    {
+        $('.shopping-cart-item-quantity').each(function () {
+            $(this).spinner({
+                stop: function()
+                {
+                    var quantity = $(this).spinner("value");
+                    var cartItemId=0;
+                    var nameString = $(this).attr("name");
+                    if (nameString.length > 0) {
+                        var n = nameString.indexOf("editshoppingcartitem_");
+                        if (n != -1) {
+                            cartItemId = nameString.substring(n + 21);
+                        }
+                    }
+                    fns_shoppingcartchangequantity(cartItemId, quantity);
+                },
+                spin: function( event, ui )
+                {
+                    if ( ui.value > 1000 )
+                    {
+                        $( this ).spinner( 'value', 1000 );
+                        return false;
+                    } else if ( ui.value < 0 )
+                    {
+                        $( this ).spinner( 'value', 0 );
+                        return false;
+                    }
+                }
+            });
+            $(this).prop('disabled', true);
+        });
+    }
+
+    function fns_shoppingcartmakedropdown()
+    {
+        $('.shopping-cart-item-quantity-dropdown').each(function () {
+            $(this).on("change", function() {
+                var quantity = $(this).val();
+                var cartItemId=0;
+                var nameString = $(this).attr("name");
+                if (nameString.length > 0) {
+                    var n = nameString.indexOf("editshoppingcartitem_");
+                    if (n != -1) {
+                        cartItemId = nameString.substring(n + 21);
+                    }
+                }
+                fns_shoppingcartchangequantity(cartItemId, quantity);
+            });
+        });
+    }
+
+    function fns_is_int(value){
+        if((parseFloat(value) == parseInt(value)) && !isNaN(value)){
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    function fns_shoppingcartchangequantity(cartItemId, quantity)
+    {
+        //alert('fns_shoppingcartchangequantity quantity='+quantity);
+        if (cartItemId==0)
+            return;
+        if (!fns_is_int(quantity) || quantity<0){
+            return false;
+        }
+
+        var postData = {
+            Id: cartItemId,
+            Quantity: quantity
+        };
+        addAntiForgeryToken(postData);
+        $.ajax({
+            cache: false,
+            url: '@Url.Action("UpdateShoppingCartItem")',
+            type: 'post',
+            async: true,
+            data: postData,
+            success: function (response) {
+                if (response.success)
+                {
+                    if (quantity==0)
+                    {
+                        $('#cartitem-'+cartItemId).remove();
+                    }
+                    fns_simple_checkout_changecart();
+                }
+                else
+                {
+                    if (response.message.length>0)
+                    {
+                        alert(response.message);
+                    }
+                    if (response.redirecturl.length>0)
+                    {
+                        location.href=response.redirecturl;
+                    }
+                }
+                return true;
+            },
+            error: function () {
+                alert('Failed to remove shopping cart item.');
+                return false;
+            }
+        });
+    }
+
+    // adjustPaymentMethod
+    function adjustPaymentMethod()
+    {
+        if (__ShimpleCheckout_SkipLoading)
+            return;
+
+        var ddlshippingoption= sc_GetddlShippingMethodValue();
+        $("#paymentmethods-loading-progress").show();
+        __ShimpleCheckout_SkipLoading=true;
+        var postData = {
+            shippingoption: ddlshippingoption
+        };
+
+        addAntiForgeryToken(postData);
+        $.ajax({
+            cache: false,
+            url: '@Url.RouteUrl("SimpleCheckoutAjaxPaymentMethod")',
+            type: 'post',
+            data: postData,
+            success: function (response) {
+                if (response.success)
+                {
+                    var ddlwarningpayment = $('#message-error-payment ul');
+                    ddlwarningpayment.html('');
+                    if (response.warningspayment) {
+                        $.each(response.warningspayment, function (id, idata) {
+                            ddlwarningpayment.append('<li>' + idata + '</li>');
+                        });
+                    }
+                    sc_AjaxPaymentMethod_success(response);
+                }
+                $("#paymentmethods-loading-progress").hide();
+                __ShimpleCheckout_SkipLoading = false;
+                adjustOrderSummary();
+                $('#message-error ul').html('');
+                return true;
+            },
+            error: function () {
+                $("#paymentmethods-loading-progress").hide();
+                __ShimpleCheckout_SkipLoading=false;
+                alert('Failed to retrieve payment method list. Please refresh the page.');
+                return false;
+            }
+        });
+        return true;
+    };
+
+    // PaymentInfo
+    function adjustPaymentInfo()
+    {
+        var tmpSelect = $('.simple-checkout-paymentinfo');
+        tmpSelect.html('');
+
+        var ddlpaymentmethod= sc_GetddlPaymentMethodValue();
+
+        var paymentInfoProgress = $("#paymentinfo-loading-progress");
+        if (paymentInfoProgress.length <1)
+        {
+            tmpSelect.prepend("<span id=\"paymentinfo-loading-progress\" style=\"display: none;\" class=\"please-wait\">"+__fns_simple_checkout_waitmessage+"</span>");
+            paymentInfoProgress = $("#paymentinfo-loading-progress");
+        }
+        $('.confirm-order-button').show().prop("onclick", null).off('click').click(confirmButton);
+
+        paymentInfoProgress.show();
+        var postData = {
+            paymentmethod: ddlpaymentmethod
+        };
+        addAntiForgeryToken(postData);
+        $.ajax({
+            cache: false,
+            url: '@Url.RouteUrl("SimpleCheckoutAjaxPaymentInfo")',
+            type: 'post',
+            data: postData,
+            success: function (data) {
+                if (data.success)
+                {
+                    if (data.updatepaymentinfohtml.length>=0) {
+                        var tmpSelect = $('.simple-checkout-paymentinfo');
+                        tmpSelect.html('');
+                        tmpSelect.append(data.updatepaymentinfohtml);
+                    }
+                }
+                paymentInfoProgress.hide();
+                return true;
+            },
+            error: function () {
+                paymentInfoProgress.hide();
+                alert('Failed to retrieve payment info. Please refresh the page.');
+                return false;
+            }
+        });
+        return true;
+    };
+
+    // update OrderSummary from ShoppingCart
+    function adjustOrderSummary()
+    {
+        if (__ShimpleCheckout_loadWaiting)
+            return true;
+        __ShimpleCheckout_loadWaiting=true;
+        var tmpSelect = $('.simple-checkout-order-summary-body');
+        tmpSelect.html('');
+
+        var ddlshippingoption= sc_GetddlShippingMethodValue();
+        var ddlpaymentmethod= sc_GetddlPaymentMethodValue();
+        var ddluseRewardPoints = false;
+        if ($("#@Html.IdFor(model => model.UseRewardPoints)").is(':checked'))
+            ddluseRewardPoints = true;
+
+        var ordersummaryProgress = $("#order-summary-loading-progress");
+        if (ordersummaryProgress.length <1)
+        {
+            tmpSelect.prepend("<span id=\"order-summary-loading-progress\" style=\"display: none;\" class=\"please-wait\"></span>");
+            ordersummaryProgress = $("#order-summary-loading-progress");
+            ordersummaryProgress.text(__fns_simple_checkout_waitmessage);
+        }
+        ordersummaryProgress.show();
+        var postData = {
+            shippingoption: ddlshippingoption,
+            paymentmethod: ddlpaymentmethod,
+            useRewardPoints:ddluseRewardPoints
+        };
+        addAntiForgeryToken(postData);
+        $.ajax({
+            cache: false,
+            url: '@Url.RouteUrl("SimpleCheckoutAjaxOrderSummary")',
+            type: 'post',
+            data: postData,
+            success: function (data) {
+                if (data.success)
+                {
+                    if (data.updateordersummaryhtml.length>=0) {
+                        var tmpSelect = $('.simple-checkout-order-summary-body');
+                        tmpSelect.html('');
+                        tmpSelect.append(data.updateordersummaryhtml);
+                        __ShimpleCheckout_loadWaiting=false;
+                        fns_shoppingcartmakespinner();
+                        fns_shoppingcartmakedropdown();
+                    }
+                }
+                return true;
+            },
+            error: function () {
+                alert('Failed to retrieve order summary.');
+                __ShimpleCheckout_loadWaiting=false;
+                return false;
+            }
+        });
+        return true;
+    };
+
+    // update shipping/payment methods from ShoppingCart
+    function adjustChangeAddressMethod(typeupdate)
+    {
+        /*
+        1 - change primary address
+        2 - change secondary address address
+        3 - change product count or add/remove discount code (giftcode)
+        4 - change shipment methods
+        5 - change payment methods
+        */
+        if (__ShimpleCheckout_SkipLoading)
+            return;
+        if (typeupdate==4)
+        {
+            @if (Model.PluginSettings.UseStaticPaymentMethodsForAddress)
+            {
+                <text>
+                    adjustOrderSummary();
+                </text>
+            }
+            else
+            {
+                <text>
+                adjustPaymentMethod();
+                </text>
+            }
+            return;
+        }
+        if (typeupdate==5)
+        {
+            adjustPaymentInfo();
+            adjustOrderSummary();
+            return;
+        }
+        if (!validatePrimaryAddress())
+        {
+            if (typeupdate==3)
+                adjustOrderTotals();
+            return;
+        }
+        $("#shipmentmethods-loading-progress").show();
+        $("#paymentmethods-loading-progress").show();
+        var postData = $("#form-fns-simplecheckout").serialize() + '&' + $.param({ 'typeOfUpdate': typeupdate });
+        addAntiForgeryToken(postData);
+        __ShimpleCheckout_SkipLoading=true;
+        $.ajax({
+            cache: false,
+            url: '@Url.RouteUrl("SimpleCheckoutAjaxChangeAddress")',
+            type: 'post',
+            async: true,
+            data: postData,
+            success: sc_AjaxChangeAddress_success,
+            error: function () {
+                alert('Failed to retrieve date from server.');
+                $("#shipmentmethods-loading-progress").hide();
+                $("#paymentmethods-loading-progress").hide();
+                __ShimpleCheckout_SkipLoading=false;
+                return false;
+            }
+        });
+        return true;
+    };
+
+    function sc_AjaxChangeAddress_success(response) {
+        var ddlwarningpayment = $('#message-error-payment ul');
+        ddlwarningpayment.html('');
+        if (response.warningspayment) {
+            $.each(response.warningspayment, function (id, idata) {
+                ddlwarningpayment.append('<li>' + idata + '</li>');
+            });
+        }
+        var ddlwarningshipping = $('#message-error-shipping ul');
+        ddlwarningshipping.html('');
+        if (response.warningsshipping) {
+            $.each(response.warningsshipping, function (id, idata) {
+                ddlwarningshipping.append('<li>' + idata + '</li>');
+            });
+        }
+
+        sc_AjaxShippingMethod_success(response);
+        sc_AjaxPaymentMethod_success(response);
+
+        $("#shipmentmethods-loading-progress").hide();
+        $("#paymentmethods-loading-progress").hide();
+
+        __ShimpleCheckout_SkipLoading = false;
+        adjustOrderSummary();
+        $('#message-error ul').html('');
+    }
+
+    function isEmptyOrSpaces(str){
+        return str === null || str.match(/^ *$/) !== null;
+    }
+
+    function validatePrimaryAddress()
+    {
+        @if (Model.PrimaryAddress.CityEnabled && Model.PrimaryAddress.CityRequired)
+        {
+            <text>
+            var city= $("#@Html.IdFor(model => model.PrimaryAddress.City)").val();
+            if (isEmptyOrSpaces(city))
+                return false;
+            </text>
+        }
+        @if (Model.PrimaryAddress.ZipPostalCodeEnabled && Model.PrimaryAddress.ZipPostalCodeRequired)
+        {
+            <text>
+            var zippostalcode= $("#@Html.IdFor(model => model.PrimaryAddress.ZipPostalCode)").val();
+            if (isEmptyOrSpaces(zippostalcode))
+                return false;
+            </text>
+        }
+        @if (Model.PrimaryAddress.StreetAddressEnabled && Model.PrimaryAddress.StreetAddressRequired)
+        {
+            <text>
+            var streetaddress= $("#@Html.IdFor(model => model.PrimaryAddress.Address1)").val();
+            if (isEmptyOrSpaces(streetaddress))
+                return false;
+            </text>
+        }
+        @if (Model.PrimaryAddress.StreetAddress2Enabled && Model.PrimaryAddress.StreetAddress2Required)
+        {
+            <text>
+            var streetaddress2= $("#@Html.IdFor(model => model.PrimaryAddress.Address2)").val();
+            if (isEmptyOrSpaces(streetaddress2))
+                return false;
+            </text>
+        }
+        @if (Model.PrimaryAddress.CountyEnabled && Model.PrimaryAddress.CountyRequired)
+        {
+            <text>
+            var county= $("#@Html.IdFor(model => model.PrimaryAddress.County)").val();
+            if (isEmptyOrSpaces(county))
+                return false;
+            </text>
+        }
+        @if (Model.PrimaryAddress.PhoneEnabled && Model.PrimaryAddress.PhoneRequired)
+        {
+            <text>
+            var phonenumber= $("#@Html.IdFor(model => model.PrimaryAddress.PhoneNumber)").val();
+            if (isEmptyOrSpaces(phonenumber))
+               return false;
+            </text>
+        }
+        @if (Model.PrimaryAddress.FaxEnabled && Model.PrimaryAddress.FaxRequired)
+        {
+            <text>
+            var faxnumber= $("#@Html.IdFor(model => model.PrimaryAddress.FaxNumber)").val();
+            if (isEmptyOrSpaces(faxnumber))
+               return false;
+            </text>
+        }
+
+        @if (Model.PrimaryAddress.CompanyEnabled && Model.PrimaryAddress.CompanyRequired)
+        {
+            <text>
+            var company= $("#@Html.IdFor(model => model.PrimaryAddress.Company)").val();
+            if (isEmptyOrSpaces(company))
+               return false;
+            </text>
+        }
+
+        if ($("#@Html.IdFor(model => model.PrimaryAddress.FirstName)"))
+        {
+            var firstname= $("#@Html.IdFor(model => model.PrimaryAddress.FirstName)").val();
+            if (isEmptyOrSpaces(firstname))
+                return false;
+        }
+
+        if ($("#@Html.IdFor(model => model.PrimaryAddress.LastName)"))
+        {
+            var lastname= $("#@Html.IdFor(model => model.PrimaryAddress.LastName)").val();
+            if (isEmptyOrSpaces(lastname))
+                return false;
+        }
+
+        if ($("#@Html.IdFor(model => model.PrimaryAddress.Email)"))
+        {
+            var email= $("#@Html.IdFor(model => model.PrimaryAddress.Email)").val();
+            if (isEmptyOrSpaces(email))
+                return false;
+        }
+        return true;
+    }
+
+    function keypressrefresshmethod()
+    {
+        clearTimeout(__fns_simple_checkout_timeout);
+        __fns_simple_checkout_timeout = setTimeout(function() {
+            if (!validatePrimaryAddress())
+                return;
+            adjustChangeAddressMethod(1);
+        }, 1500);
+    }
+
+    function fns_simple_checkout_setevent(selector)
+    {
+        $("#"+selector)[0].oninput = keypressrefresshmethod;
+    }
+
+    function fns_simple_checkout_changecart()
+    {
+        @if (Model.PluginSettings.UseStaticShipmentMethodsForAddress && Model.PluginSettings.UseStaticPaymentMethodsForAddress)
+        {
+        <text>
+        adjustOrderSummary();
+        //adjustOrderTotals();
+        adjustPaymentInfo();
+        </text>
+        }
+        else
+        {
+        <text>
+        adjustChangeAddressMethod(3);
+        </text>
+        }
+    }
+
+    function checkoutAttributeChange() {
+        $.ajax({
+            cache: false,
+            url: '@Html.Raw(Url.Action("checkoutattributechange", "shoppingcart"))',
+            data: $('#form-fns-simplecheckout').serialize(),
+            type: 'post',
+            success: function(data) {
+                if (data.enabledattributeids) {
+                    for (var i = 0; i < data.enabledattributeids.length; i++) {
+                        $('#checkout_attribute_label_' + data.enabledattributeids[i]).show();
+                        $('#checkout_attribute_input_' + data.enabledattributeids[i]).show();
+                    }
+                }
+                if (data.disabledattributeids) {
+                    for (var i = 0; i < data.disabledattributeids.length; i++) {
+                        $('#checkout_attribute_label_' + data.disabledattributeids[i]).hide();
+                        $('#checkout_attribute_input_' + data.disabledattributeids[i]).hide();
+                    }
+                }
+                fns_simple_checkout_changecart();
+            }
+        });
+    }
+
+    function confirmButton() {
+        $('.confirm-order-button').attr('disabled', true);
+        //terms of service
+        var termOfServiceOk = true;
+        if ($('#termsofservice').length > 0) {
+            //terms of service element exists
+            if (!$('#termsofservice').is(':checked')) {
+                $("#terms-of-service-warning-box").dialog();
+                termOfServiceOk = false;
+            } else {
+                termOfServiceOk = true;
+            }
+        }
+        $('.confirm-order-button').removeAttr('disabled');
+        if (termOfServiceOk) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    $(document).ready(function () {
+        currentSecondaryAddress=getSecondaryAddress();
+
+        $("#@Html.IdFor(model => model.PrimaryAddress.StateProvinceId)").change(function(){adjustChangeAddressMethod(1)});
+        $("#@Html.IdFor(model => model.PrimaryAddress.ZipPostalCode)").on('input',keypressrefresshmethod);
+        $("#@Html.IdFor(model => model.PrimaryAddress.City)").on('input',keypressrefresshmethod);
+        $("#@Html.IdFor(model => model.PrimaryAddress.Address1)").on('input',keypressrefresshmethod);
+        $("#@Html.IdFor(model => model.PrimaryAddress.Address2)").on('input',keypressrefresshmethod);
+        $("#@Html.IdFor(model => model.PrimaryAddress.County)").on('input', keypressrefresshmethod);
+
+        $("#@Html.IdFor(model => model.PrimaryAddress.PhoneNumber)").on('input',keypressrefresshmethod);
+        $("#@Html.IdFor(model => model.PrimaryAddress.FaxNumber)").on('input',keypressrefresshmethod);
+        $("#@Html.IdFor(model => model.PrimaryAddress.Company)").on('input',keypressrefresshmethod);
+        $("#@Html.IdFor(model => model.PrimaryAddress.FirstName)").on('input',keypressrefresshmethod);
+        $("#@Html.IdFor(model => model.PrimaryAddress.LastName)").on('input',keypressrefresshmethod);
+        $("#@Html.IdFor(model => model.PrimaryAddress.Email)").on('input',keypressrefresshmethod);
+        @if (Model.DisplayVatNumber)
+        {
+            <text>
+            $("#@Html.IdFor(model => model.VatNumber)").on('input',keypressrefresshmethod);
+            </text>
+        }
+        $("#@Html.IdFor(model => model.UseSecondaryAddress)").change(showSecondaryAddressWindow);
+        $("#@Html.IdFor(model => model.UseRewardPoints)").change(fns_simple_checkout_changecart);
+
+        adjustChangeAddressMethod(5);
+
+        $('.confirm-order-button').show().prop("onclick", null).off('click').click(confirmButton);
+    });
+
+</script>
+
+@if (Model.PrimaryAddress.CountryEnabled && Model.PrimaryAddress.StateProvinceEnabled)
+{
+    <script asp-location="Footer">
+        $(function () {
+            $("#@Html.IdFor(model => model.PrimaryAddress.CountryId)").change(function () {
+                var selectedItem = $(this).val();
+                var ddlStates = $("#@Html.IdFor(model => model.PrimaryAddress.StateProvinceId)");
+                var statesProgress = $("#primary-address-states-loading-progress");
+                statesProgress.show();
+                $.ajax({
+                    cache: false,
+                    type: "GET",
+                    url: "@(Url.RouteUrl("GetStatesByCountryId"))",
+                    data: { "countryId": selectedItem, "addSelectStateItem": "true" },
+                    async: false,
+                    success: function (data) {
+                        ddlStates.html('');
+                        $.each(data, function (id, option) {
+                            ddlStates.append($('<option></option>').val(option.id).html(option.name));
+                        });
+                        statesProgress.hide();
+                        adjustChangeAddressMethod(1);
+                    },
+                    error: function (xhr, ajaxOptions, thrownError) {
+                        alert('Failed to retrieve states.');
+                        statesProgress.hide();
+                    }
+                });
+            });
+        });
+    </script>
+}
+else if (Model.PrimaryAddress.CountryEnabled)
+{
+    <script asp-location="Footer">
+        $(function () {
+            $("#@Html.IdFor(model => model.PrimaryAddress.CountryId)").change(function () {
+                adjustChangeAddressMethod(1);
+            });
+        });
+    </script>
+}
+@if (Model.SecondaryAddress.CountryEnabled && Model.SecondaryAddress.StateProvinceEnabled)
+{
+    <script asp-location="Footer">
+        $(function () {
+            $("#@Html.IdFor(model => model.SecondaryAddress.CountryId)").change(function () {
+                var selectedItem = $(this).val();
+                var ddlStates = $("#@Html.IdFor(model => model.SecondaryAddress.StateProvinceId)");
+                var statesProgress = $("#secondary-address-states-loading-progress");
+                statesProgress.show();
+                $.ajax({
+                    cache: false,
+                    type: "GET",
+                    url: "@(Url.RouteUrl("GetStatesByCountryId"))",
+                    data: { "countryId": selectedItem, "addSelectStateItem": "true" },
+                    async: false,
+                    success: function (data) {
+                        ddlStates.html('');
+                        $.each(data, function (id, option) {
+                            ddlStates.append($('<option></option>').val(option.id).html(option.name));
+                        });
+                        statesProgress.hide();
+                    },
+                    error: function (xhr, ajaxOptions, thrownError) {
+                        alert('Failed to retrieve states.');
+                        statesProgress.hide();
+                    }
+                });
+            });
+        });
+    </script>
+}
+@if (Model.PrimaryAddress.CompanyEnabled && Model.DisplayVatNumber)
+{
+    <script asp-location="Footer">
+        $(document).ready(function () {
+            // Add custom method to check if VAT is required based on company name
+            $.validator.addMethod("vatRequiredVATIfCompany", function (value, element) {
+                var companyName = $("#@Html.IdFor(model => model.PrimaryAddress.Company)").val().trim();
+                if (companyName.length > 0 && value.trim().length === 0) {
+                    return false; // VAT number is required if company name is filled
+                }
+                return true;
+            }, "@T("FoxNetSoft.Plugin.Misc.SimpleCheckout.VATNumber.Required")");
+
+            $("#form-fns-simplecheckout").validate({
+              // Standard validation rules
+              rules: {
+                "#@Html.IdFor(model => model.PrimaryAddress.Company)": {
+                  required: false // Not required by default, but will trigger VAT validation
+                },
+                "@Html.IdFor(model => model.VatNumber)": {
+                    required: false // Not required by default, unless company name is filled
+                }
+              },
+              // Custom messages
+              messages: {
+                "@Html.IdFor(model => model.VatNumber)": {
+                  vatRequiredVATIfCompany: "@T("FoxNetSoft.Plugin.Misc.SimpleCheckout.VATNumber.Required")"
+                }
+              },
+              // Add custom validation method
+              submitHandler: function(form) {
+                // If validation passes, submit the form
+                form.submit();
+              }
+            });
+
+            // Add custom validator to the VAT field
+            $("#@Html.IdFor(model => model.VatNumber)").rules("add", { vatRequiredVATIfCompany: true });
+        });
+    </script>
+}

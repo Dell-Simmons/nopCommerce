@@ -1,0 +1,293 @@
+﻿@model FoxNetSoft.Plugin.Misc.SimpleCheckout.Models.SimpleCheckoutSettingsModel
+@using FoxNetSoft.Plugin.Misc.SimpleCheckout.Logger
+@using Microsoft.AspNetCore.Mvc.Controllers
+@using Nop.Core
+@using Nop.Services.Plugins
+@inject IWebHelper webHelper
+@inject IPluginService pluginService
+@{
+    var plugin = pluginService.FindPluginByTypeInAssembly((this.ViewContext.ActionDescriptor as ControllerActionDescriptor).ControllerTypeInfo);
+
+    //friendly name
+    var friendlyName = plugin?.PluginDescriptor.FriendlyName;
+
+    //Misc plugins
+
+    var configureLocale = "Admin.Configuration.Plugins.Misc.Configure";
+    var backToLocale = "Admin.Configuration.Plugins.Misc.BackToList";
+    var listActionMethodName = "List";
+    var listControllerName = "Plugin";
+
+    //Layout = "_ConfigurePlugin";
+    Layout = "_AdminLayout";
+    NopHtml.SetActiveMenuItemSystemName("FoxNetSoft.SimpleCheckout.Configure");
+    ViewBag.Title = T(configureLocale).Text + " - " + friendlyName;
+
+}
+<div class="content-header clearfix">
+    <h1 class="pull-left">
+        @T(configureLocale) - @friendlyName
+        <small>
+            <i class="fa fa-arrow-circle-left"></i>
+            <a asp-action="@listActionMethodName" asp-controller="@listControllerName">@T(backToLocale)</a>
+        </small>
+    </h1>
+    <div class="pull-right">
+        &nbsp;
+    </div>
+</div>
+<div class="content">
+    <div class="form-horizontal">
+        @await Component.InvokeAsync("StoreScopeConfiguration")
+        <form asp-controller="SimpleCheckoutSettings" asp-action="Configure" method="post">
+            <script>
+                $(document).ready(function () {
+                    $("#showDebugInfo").click(toggleshowDebugInfo);
+                    toggleshowDebugInfo();
+                });
+
+                function toggleshowDebugInfo() {
+                    if ($('#showDebugInfo').is(':checked')) {
+                        $('#pnlclearlogfile, #pnlgetlogfile').show();
+                    }
+                    else {
+                        $('#pnlclearlogfile, #pnlgetlogfile').hide();
+                    }
+                }
+            </script>
+            <div class="cards-group">
+                <div class="card card-default">
+                    <div class="card-body">
+                        <p>
+                            @if (Model.LicenseStatus == LicenseStatus.Registered)
+                            {
+                                @T("Admin.FoxNetSoft.Plugin.Misc.SimpleCheckout.SimpleCheckoutSettings.IsRegisted")
+                            }
+                            else
+                            {
+                                <b>Important note:</b><br />
+                                @T("Admin.FoxNetSoft.Plugin.Misc.SimpleCheckout.SimpleCheckoutSettings.IsNoRegisted")
+                                <br />
+                                <a href="https://www.foxnetsoft.com/nopsimplecheckout" target="blank">Buy It Now</a>
+                            }
+                        </p>
+                        <div class="form-group row">
+                            <div class="col-md-3">
+                                <nop-label asp-for="Enable" />
+                            </div>
+                            <div class="col-md-9">
+                                <nop-editor asp-for="Enable" />
+                                <span asp-validation-for="Enable"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card card-default">
+                    <div class="card-body">
+                        <div class="form-group row">
+                            <div class="col-md-3">
+                                <nop-override-store-checkbox asp-for="Template_OverrideForStore" asp-input="Template" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
+                                <nop-label asp-for="Template" />
+                            </div>
+                            <div class="col-md-9">
+                                <nop-select asp-for="Template" asp-items="Model.TemplateValues" />
+                                <span asp-validation-for="Template"></span>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-md-3">
+                                <nop-override-store-checkbox asp-for="PrimaryAddress_OverrideForStore" asp-input="PrimaryAddress" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
+                                <nop-label asp-for="PrimaryAddress" />
+                            </div>
+                            <div class="col-md-9">
+                                <nop-select asp-for="PrimaryAddress" asp-items="Model.PrimaryAddressValues" />
+                                <span asp-validation-for="PrimaryAddress"></span>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-md-3">
+                                <nop-override-store-checkbox asp-for="AllowToSelectTheAddress_OverrideForStore" asp-input="AllowToSelectTheAddress" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
+                                <nop-label asp-for="AllowToSelectTheAddress" />
+                            </div>
+                            <div class="col-md-9">
+                                <nop-editor asp-for="AllowToSelectTheAddress" />
+                                <span asp-validation-for="AllowToSelectTheAddress"></span>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-md-3">
+                                <nop-override-store-checkbox asp-for="AllowSecondaryAddress_OverrideForStore" asp-input="AllowSecondaryAddress" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
+                                <nop-label asp-for="AllowSecondaryAddress" />
+                            </div>
+                            <div class="col-md-9">
+                                <nop-editor asp-for="AllowSecondaryAddress" />
+                                <span asp-validation-for="AllowSecondaryAddress"></span>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-md-3">
+                                <nop-override-store-checkbox asp-for="DefaultCountry_OverrideForStore" asp-input="DefaultCountryId" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
+                                <nop-label asp-for="DefaultCountryId" />
+                            </div>
+                            <div class="col-md-9">
+                                <nop-select asp-for="DefaultCountryId" asp-items="Model.DefaultCountries" />
+                                <span asp-validation-for="DefaultCountryId"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card card-default">
+                    <div class="card-body">
+                        <div class="form-group row advanced-setting">
+                            <div class="col-md-3">
+                                <nop-override-store-checkbox asp-for="IsShowHint_OverrideForStore" asp-input="IsShowHint" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
+                                <nop-label asp-for="IsShowHint" />
+                            </div>
+                            <div class="col-md-9">
+                                <nop-editor asp-for="IsShowHint" />
+                                <span asp-validation-for="IsShowHint"></span>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-md-3">
+                                <nop-label asp-for="SkipShoppingCartPage" />
+                            </div>
+                            <div class="col-md-9">
+                                <nop-editor asp-for="SkipShoppingCartPage" />
+                                <span asp-validation-for="SkipShoppingCartPage"></span>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-md-3">
+                                <nop-override-store-checkbox asp-for="ShowDiscountBox_OverrideForStore" asp-input="ShowDiscountBox" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
+                                <nop-label asp-for="ShowDiscountBox" />
+                            </div>
+                            <div class="col-md-9">
+                                <nop-editor asp-for="ShowDiscountBox" />
+                                <span asp-validation-for="ShowDiscountBox"></span>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-md-3">
+                                <nop-override-store-checkbox asp-for="ShowGiftCardBox_OverrideForStore" asp-input="ShowGiftCardBox" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
+                                <nop-label asp-for="ShowGiftCardBox" />
+                            </div>
+                            <div class="col-md-9">
+                                <nop-editor asp-for="ShowGiftCardBox" />
+                                <span asp-validation-for="ShowGiftCardBox"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card card-default advanced-setting">
+                    <div class="card-body">
+                        <p>
+                            <b>
+                                @T("Admin.FoxNetSoft.Plugin.Misc.SimpleCheckout.SimpleCheckoutSettings.Performance")
+                            </b>
+                        </p>
+                        <div class="form-group row">
+                            <div class="col-md-3">
+                                <nop-override-store-checkbox asp-for="UseStaticShipmentMethods_OverrideForStore" asp-input="UseStaticShipmentMethods" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
+                                <nop-label asp-for="UseStaticShipmentMethods" />
+                            </div>
+                            <div class="col-md-9">
+                                <nop-editor asp-for="UseStaticShipmentMethods" />
+                                <span asp-validation-for="UseStaticShipmentMethods"></span>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-md-3">
+                                <nop-override-store-checkbox asp-for="UseStaticPaymentMethods_OverrideForStore" asp-input="UseStaticPaymentMethods" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
+                                <nop-label asp-for="UseStaticPaymentMethods" />
+                            </div>
+                            <div class="col-md-9">
+                                <nop-editor asp-for="UseStaticPaymentMethods" />
+                                <span asp-validation-for="UseStaticPaymentMethods"></span>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-md-3">
+                                <nop-override-store-checkbox asp-for="UseStaticShipmentMethodsForAddress_OverrideForStore" asp-input="UseStaticShipmentMethodsForAddress" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
+                                <nop-label asp-for="UseStaticShipmentMethodsForAddress" />
+                            </div>
+                            <div class="col-md-9">
+                                <nop-editor asp-for="UseStaticShipmentMethodsForAddress" />
+                                <span asp-validation-for="UseStaticShipmentMethodsForAddress"></span>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-md-3">
+                                <nop-override-store-checkbox asp-for="UseStaticPaymentMethodsForAddress_OverrideForStore" asp-input="UseStaticPaymentMethodsForAddress" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
+                                <nop-label asp-for="UseStaticPaymentMethodsForAddress" />
+                            </div>
+                            <div class="col-md-9">
+                                <nop-editor asp-for="UseStaticPaymentMethodsForAddress" />
+                                <span asp-validation-for="UseStaticPaymentMethodsForAddress"></span>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-md-3">
+                                <nop-override-store-checkbox asp-for="AlwaysShowPaymentInfo_OverrideForStore" asp-input="AlwaysShowPaymentInfo" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
+                                <nop-label asp-for="AlwaysShowPaymentInfo" />
+                            </div>
+                            <div class="col-md-9">
+                                <nop-editor asp-for="AlwaysShowPaymentInfo" />
+                                <span asp-validation-for="AlwaysShowPaymentInfo"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card card-default">
+                    <div class="card-body">
+                        <div class="form-group row">
+                            <div class="col-md-3">
+                                <nop-label asp-for="showDebugInfo" />
+                            </div>
+                            <div class="col-md-9">
+                                <nop-editor asp-for="showDebugInfo" />
+                                <span asp-validation-for="showDebugInfo"></span>
+                                <div id="pnlclearlogfile">
+                                    <a href="@Url.Action("ClearLogFile")" class="btn btn-primary">@T("Admin.FoxNetSoft.Plugin.Misc.SimpleCheckout.SimpleCheckoutSettings.ClearLogFile")</a>
+                                </div>
+                                <div id="pnlgetlogfile">
+                                    <a href="@Url.Action("GetLogFile")" class="btn btn-primary">@T("Admin.FoxNetSoft.Plugin.Misc.SimpleCheckout.SimpleCheckoutSettings.GetLogFile")</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-md-3">
+                                <nop-label asp-for="StoreUrl" />
+                            </div>
+                            <div class="col-md-9">
+                                <input class="form-control text-box single-line" id="StoreUrl" name="StoreUrl" value="@Model.StoreUrl" type="text" readonly="readonly">
+                                <span asp-validation-for="StoreUrl"></span>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-md-3">
+                                <nop-label asp-for="SerialNumber" />
+                            </div>
+                            <div class="col-md-9">
+                                <nop-editor asp-for="SerialNumber" />
+                                <span asp-validation-for="SerialNumber"></span>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-md-9 col-md-offset-3">
+                                <input type="submit" name="save" class="btn bg-primary" value="@T("Admin.Common.Save")" />
+                            </div>
+                        </div>
+                        <p>
+                            Installation and configuring plug-in at Youtube <a href="http://www.youtube.com/foxnetsoft" target="blank">www.youtube.com/foxnetsoft</a>
+                            <br />
+                            Installation and configuring plug-in at our site <a href="https://www.foxnetsoft.com/documentation-nopsimplecheckout" target="blank">https://www.foxnetsoft.com/documentation-nopsimplecheckout</a>
+                            <br />
+                            <a href="https://www.foxnetsoft.com" target="blank">www.foxnetsoft.com</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

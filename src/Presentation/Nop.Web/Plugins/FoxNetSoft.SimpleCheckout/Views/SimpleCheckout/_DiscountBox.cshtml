@@ -1,0 +1,47 @@
+﻿@model FoxNetSoft.Plugin.Misc.SimpleCheckout.Models.SimpleCheckoutModel.DiscountBoxModel
+@using System.Globalization
+@using System.Text
+@using Nop.Core
+@using Nop.Web.Framework.UI
+@using Nop.Web.Framework
+@using FoxNetSoft.Plugin.Misc.SimpleCheckout.Models
+@using FoxNetSoft.Plugin.Misc.SimpleCheckout.Extensions
+@if (Model.Display)
+{
+    <div class="inputs coupon-box">
+        <nop-label asp-for="CurrentCode" class="labelforinputs" />
+        <div class="couponblock">
+            <input name="discountcouponcode" id="discountcouponcode" type="text" class="discount-coupon-code" />
+            <div class="buttons">
+                <input type="button" name="applydiscountcouponcode" id="applydiscountcouponcode"
+                       value="@T("ShoppingCart.DiscountCouponCode.Button")" class="button-2 apply-discount-coupon-code-button" onclick="fns_simplecheckout_applydiscountcouponcode()" />
+            </div>
+            @foreach (var message in Model.Messages)
+            {
+                <div class="message @(Model.IsApplied ? "message-success" : "message-failure")">
+                    @message
+                </div>
+            }
+            @foreach (var discount in Model.AppliedDiscountsWithCodes)
+            {
+                <div class="current-code">
+                    <span class="applied-discount-code">@string.Format(T("ShoppingCart.DiscountCouponCode.CurrentCode").Text, discount.CouponCode)</span>
+                    @*empty value (little hack for FormValueExistsAttribute)*@
+                    <input type="button" name="removediscount-@discount.Id" value=" " title="@T("Common.Remove")" class="remove-discount-button" onclick="fns_simplecheckout_removediscountcouponcode(@discount.Id)" />
+                </div>
+            }
+        </div>
+    </div>
+    <script asp-location="Footer">
+            $(document).ready(function () {
+                $('#discountcouponcode').keydown(function (event) {
+                    if (event.keyCode == 13) {
+                        fns_simplecheckout_applydiscountcouponcode();
+                        //$('#applydiscountcouponcode').click();
+                        return false;
+                    }
+                });
+            });
+    </script>
+}  
+

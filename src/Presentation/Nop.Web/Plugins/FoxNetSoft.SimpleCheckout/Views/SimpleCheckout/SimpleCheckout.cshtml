@@ -13,7 +13,7 @@
 
     //title
     NopHtml.AddTitleParts(T("PageTitle.Checkout").Text);
-    var linkcssfile = await ResolveViewPathHelper.GetThemesCSSPathAsync("Styles/styles.css");
+    var linkcssfile = await ResolveViewPathHelper.GetThemesCSSPathAsync("Styles/styles1.css");
     //var linkcssfilertl = await ResolveViewPathHelper.GetThemesCSSPathAsync("Styles/styles.rtl.css");
     IList<ShoppingCartItem> cart = await shoppingCartService.GetShoppingCartAsync(await workContext.GetCurrentCustomerAsync());//, ShoppingCartType.ShoppingCart, workContext.CurrentStore.Id);
     bool moreThanTwoItems = cart.Count > 2;
@@ -36,7 +36,7 @@
     //page class
     NopHtml.AppendPageCssClassParts("html-checkout-page");
 }
-<link rel="stylesheet" href="@Url.Content(linkcssfile)" />
+<!link rel="stylesheet" href="@Url.Content(linkcssfile)" />
 
 <script asp-location="Footer">
     $(document).ready(function () {
@@ -63,7 +63,7 @@
 
     function sc_AjaxShippingMethod_success(response) {
         if (!response.hasshipmentmethods) {
-            //$('.shipping-method').hide();
+            $('.shipping-method').hide();
             return;
         }
         if (response.shippingmethods) {
@@ -76,20 +76,13 @@
                 if (__fns_simple_checkout_shippingmethod == idata.Name + '___' + idata.ShippingRateComputationMethodSystemName)
                     selectedvalue = 'checked = "checked"';
 
-                var newoption = '<li><div class="shipping-method-block"><div class="method-name">';
+                var newoption = '<li><div class="method-name">';
                 newoption = newoption + '<input id="shippingoption_' + id + '" type="radio" name="shippingoption" value="' + idata.Name + '___' + idata.ShippingRateComputationMethodSystemName + '" ' + selectedvalue + ' />';
                 newoption = newoption + '<label for="shippingoption_' + id + '">' + idata.Name;
                 if (idata.Fee && idata.Fee.length > 0)
                     newoption = newoption + '(' + idata.Fee + ')';
                 newoption = newoption + '</label></div>';
-
-                if (idata.Description && idata.Description.length > 0) {
-                    newoption = newoption + '<div class="method-description">';
-                    newoption = newoption + idata.Description
-                    newoption = newoption + '</div>';
-                }
-
-                newoption = newoption + '</div></li>';
+                newoption = newoption + '</li>';
                 ddlshippingoption.append(newoption);
             });
             if ($("input:radio[name=shippingoption]").is(':checked') === false)
@@ -104,9 +97,9 @@
     }
     function sc_AjaxPaymentMethod_success(response) {
         if (!response.haspaymentmethods) {
-            //$('.payment-method, .simple-checkout-paymentinfo').hide();
-            //$('.confirm-order-button').prop("onclick", null).unbind();
-            //$('.confirm-order-button').click(confirmButton);
+            $('.payment-method, .simple-checkout-paymentinfo').hide();
+            $('.confirm-order-button').prop("onclick", null).unbind();
+            $('.confirm-order-button').click(confirmButton);
             return;
         }
         if (response.paymentmethods) {
@@ -217,18 +210,16 @@
                                 {
                                     var shippingMethod = Model.ShippingMethods[i];
                                     <li>
-                                        <div class="shipping-method-block">
-                                            <div class="method-name">
-                                                <input id="shippingoption_@(i)" type="radio" name="shippingoption" value="@(shippingMethod.Name)___@(shippingMethod.ShippingRateComputationMethodSystemName)" checked="@shippingMethod.Selected" />
-                                                <label for="shippingoption_@(i)">@shippingMethod.Name @(!String.IsNullOrEmpty(shippingMethod.Fee) ? " (" + shippingMethod.Fee + ")" : "")</label>
-                                            </div>
-                                            @if (!String.IsNullOrEmpty(shippingMethod.Description))
+                                        <div class="method-name">
+                                            <input id="shippingoption_@(i)" type="radio" name="shippingoption" value="@(shippingMethod.Name)___@(shippingMethod.ShippingRateComputationMethodSystemName)" checked="@shippingMethod.Selected" />
+                                            <label for="shippingoption_@(i)">@shippingMethod.Name @(!String.IsNullOrEmpty(shippingMethod.Fee) ? " (" + shippingMethod.Fee + ")" : "")</label>
+                                        </div>
+                                        @*@if (!String.IsNullOrEmpty(shippingMethod.Description))
                                             {
                                                 <div class="method-description">
                                                     @Html.Raw(shippingMethod.Description)
                                                 </div>
-                                            }
-                                        </div>
+                                            }*@
                                     </li>
                                 }
                             </ul>
@@ -239,7 +230,7 @@
                         </div>
                     </div>
                     <div class="payment-method" @(!Model.isPaymentWorkflowRequired ? Html.Raw("style=\"display:none\"") : null)>
-                        <div class="payment-title">
+                        <div class="payment-title" style="display:none>
                             <h3>@T("Checkout.SelectPaymentMethod")</h3>
                         </div>
                         <div class="payment-block">

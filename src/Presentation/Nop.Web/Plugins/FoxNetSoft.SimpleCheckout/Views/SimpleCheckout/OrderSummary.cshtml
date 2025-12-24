@@ -37,10 +37,10 @@
         </div>
         <table class="cart">
             <colgroup>
-              @*   @if (Model.IsEditable)
+                @if (Model.IsEditable)
                 {
                    <col width="1" />
-                } *@
+                }
                 @if (Model.ShowSku)
                 {
                     <col width="1" />
@@ -58,12 +58,12 @@
                 @foreach (var item in Model.Items)
                 {
                     <tr class="cart-item-row" name="cartitem-@item.Id" id="cartitem-@item.Id">
-                     @*    @if (Model.IsEditable)
+                        @if (Model.IsEditable)
                         {
                            <td class="remove-from-cart">
                                 <input type="button" name="remove-cartitem-@item.Id" value=" " title="@T("Common.Remove")" class="remove-carditem-button" onclick="fns_simplecheckout_removecartitem(@item.Id)"/>
                            </td>
-                        } *@
+                        }
                         @if (Model.ShowSku)
                         {
                             <td class="sku nobr">
@@ -121,7 +121,7 @@
                         </td>
                         <td class="qty nobr">
                             @*<span>@item.Quantity</span>*@
-                            @if (item.AllowedQuantities.Count > 1)
+                            @if (item.AllowedQuantities.Count > 0)
                             {
                                 <select name="editshoppingcartitem_@(item.Id)" id="editshoppingcartitem_@(item.Id)" class="qty-dropdown shopping-cart-item-quantity-dropdown">
                                     @foreach (var qty in item.AllowedQuantities)

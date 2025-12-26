@@ -1,0 +1,33 @@
+﻿@model CategoryNavigationModel
+@if (Model.Categories.Count > 0)
+
+{
+    // Modified to hide the "More Stamps" top category in the left side menu
+    // The subcategories under "More Stamps" in the top menu are main categories
+    // in the left side menu.
+    //
+    //
+    <div class="block block-category-navigation">
+        <div class="title">
+            <strong>@T("Categories")</strong>
+        </div>
+        <div class="listbox">
+            <ul class="list">
+                @foreach (var category in Model.Categories)
+                {
+                    @if (category.Name == "More Stamps")
+                    {
+                        continue;
+                    }
+                    var categoryLineModel = new CategoryNavigationModel.CategoryLineModel
+                    {
+                        CurrentCategoryId = Model.CurrentCategoryId,
+                        Category = category
+                    };
+                    @await Html.PartialAsync("_CategoryLine.Navigation", categoryLineModel)
+                    
+                }
+            </ul>
+        </div>
+    </div>
+}

@@ -59,8 +59,14 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Themes\Holder\Views\Shared\" />
     <Folder Include="Themes\SIDSTheme\Content\css\" />
-    <Folder Include="Themes\SIDSTheme\Views\Shared\Components\CategoryNavigation\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Update="Themes\SIDSTheme\Content\images\logo.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
   <!-- This target execute after "Build" target.

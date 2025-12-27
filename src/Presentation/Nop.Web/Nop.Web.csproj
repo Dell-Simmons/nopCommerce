@@ -59,7 +59,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Themes\Holder\Views\Shared\" />
     <Folder Include="Themes\SIDSTheme\Content\css\" />
   </ItemGroup>
 

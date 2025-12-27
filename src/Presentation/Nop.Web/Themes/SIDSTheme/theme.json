@@ -1,7 +1,7 @@
 ﻿{
-  "SystemName": "SIDSClean",
-  "FriendlyName": "SIDS clean",
-  "SupportRTL": true,
-  "PreviewImageUrl": "~/Themes/SIDSTheme/preview.jpg",
-  "PreviewText": "The 'SIDSClean' site theme"
+  "SystemName": "SIDSTheme",
+  "FriendlyName": "SIDS Theme",
+  "SupportRTL": false,
+  "PreviewImageUrl": "~/Themes/SIDSTheme/preview.png",
+  "PreviewText": "New SIDS Theme"
 }

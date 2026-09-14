@@ -175,6 +175,9 @@
                                                 <nop-label asp-for="SearchPublishedId" />
                                             </div>
                                             <div class="col-md-8">
+                                                @{
+                                                    Model.SearchPublishedId = 1; // Set default value to "Published only" 
+                                                }
                                                 <nop-select asp-for="SearchPublishedId" asp-items="Model.AvailablePublishedOptions" />
                                             </div>
                                         </div>
